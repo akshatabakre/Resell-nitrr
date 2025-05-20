@@ -116,7 +116,9 @@ def buy():
     products = mongo.db.products.find({"status": "available"})
     html = "<h2>Available Products</h2><ul>"
     for product in products:
-        html += f"<li>{product.get('name', 'Unnamed')} - ₹{product.get('price', 'N/A')} (Seller: {product.get('seller_email', 'N/A')})</li>"
+        html += f"<li>{product.get('name', 'Unnamed')} - ₹{product.get('price', 'N/A')}<br>" \
+                f"Category: {product.get('category', 'N/A')}<br>" \
+                f"Seller: {product.get('seller_name', 'N/A')} | Phone: {product.get('phone', 'N/A')} | Email: {product.get('seller_email', 'N/A')}</li><br><br>"
     html += "</ul><br><a href='/protected_area'><button>Back</button></a>"
     return html
 
@@ -124,14 +126,24 @@ def buy():
 @login_is_required
 def sell():
     if request.method == "POST":
+        category = request.form["category"]
         name = request.form["product_name"]
-        price = request.form["price"]
+        description = request.form["description"]
+        price = int(request.form["price"])
+        seller_name = request.form["seller_name"]
+        phone = request.form["phone"]
+        # image = request.files["image"]  # Placeholder for future image support
 
         mongo.db.products.insert_one({
+            "category": category,
             "name": name,
-            "price": int(price),
+            "description": description,
+            "price": price,
             "status": "available",
-            "seller_email": session["email"]
+            "seller_email": session["email"],
+            "seller_name": seller_name,
+            "phone": phone,
+            # "image_filename": image.filename  # If image saving is implemented
         })
 
         return f"""
@@ -142,9 +154,35 @@ def sell():
 
     return '''
         <h2>Sell a Product</h2>
-        <form method="post">
-            Product Name: <input type="text" name="product_name"><br><br>
-            Price: ₹<input type="number" name="price"><br><br>
+        <form method="post" enctype="multipart/form-data">
+            <label>Category:</label>
+            <select name="category">
+                <option value="electronics">Electronics</option>
+                <option value="groceries">Groceries</option>
+                <option value="study stuff">Study Stuff</option>
+                <option value="hostel stuff">Hostel Stuff</option>
+                <option value="vehicles">Vehicles</option>
+                <option value="others">Others</option>
+            </select><br><br>
+
+            <label>Product Name:</label>
+            <input type="text" name="product_name" required><br><br>
+
+            <label>Product Description:</label><br>
+            <textarea name="description" rows="4" cols="50"></textarea><br><br>
+
+            <label>Asking Price: ₹</label>
+            <input type="number" name="price" required><br><br>
+
+            <label>Product Image:</label>
+            <input type="file" name="image"><br><br>
+
+            <label>Seller Name:</label>
+            <input type="text" name="seller_name" required><br><br>
+
+            <label>Phone Number:</label>
+            <input type="tel" name="phone" required><br><br>
+
             <input type="submit" value="List Product">
         </form>
         <br>
