@@ -8,9 +8,18 @@ from pip._vendor import cachecontrol
 import google.auth.transport.requests
 from flask_pymongo import PyMongo
 from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
 
 # Load .env
 load_dotenv()
+
+# Configure Cloudinary
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET")
+)
 
 app = Flask("CollegeResellApp")
 app.secret_key = os.getenv("FLASK_SECRET", "CodeSpecialist.com")
@@ -118,7 +127,11 @@ def buy():
     for product in products:
         html += f"<li>{product.get('name', 'Unnamed')} - ₹{product.get('price', 'N/A')}<br>" \
                 f"Category: {product.get('category', 'N/A')}<br>" \
-                f"Seller: {product.get('seller_name', 'N/A')} | Phone: {product.get('phone', 'N/A')} | Email: {product.get('seller_email', 'N/A')}</li><br><br>"
+                f"Seller: {product.get('seller_name', 'N/A')} | Phone: {product.get('phone', 'N/A')} | Email: {product.get('seller_email', 'N/A')}<br>"
+        if "image_urls" in product:
+            for url in product["image_urls"]:
+                html += f"<img src='{url}' width='150'><br>"
+        html += "</li><br><br>"
     html += "</ul><br><a href='/protected_area'><button>Back</button></a>"
     return html
 
@@ -132,7 +145,14 @@ def sell():
         price = int(request.form["price"])
         seller_name = request.form["seller_name"]
         phone = request.form["phone"]
-        # image = request.files["image"]  # Placeholder for future image support
+
+        images = request.files.getlist("image")
+        image_urls = []
+
+        for img in images:
+            if img.filename != "":
+                result = cloudinary.uploader.upload(img)
+                image_urls.append(result['secure_url'])
 
         mongo.db.products.insert_one({
             "category": category,
@@ -143,7 +163,7 @@ def sell():
             "seller_email": session["email"],
             "seller_name": seller_name,
             "phone": phone,
-            # "image_filename": image.filename  # If image saving is implemented
+            "image_urls": image_urls
         })
 
         return f"""
@@ -174,8 +194,8 @@ def sell():
             <label>Asking Price: ₹</label>
             <input type="number" name="price" required><br><br>
 
-            <label>Product Image:</label>
-            <input type="file" name="image"><br><br>
+            <label>Product Images:</label>
+            <input type="file" name="image" multiple><br><br>
 
             <label>Seller Name:</label>
             <input type="text" name="seller_name" required><br><br>
