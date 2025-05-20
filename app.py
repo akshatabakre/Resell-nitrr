@@ -6,32 +6,47 @@ from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
 import google.auth.transport.requests
+from flask_pymongo import PyMongo
+from dotenv import load_dotenv
 
-app = Flask("Google Login App")
-app.secret_key = "CodeSpecialist.com"
+# Load .env
+load_dotenv()
 
+app = Flask("CollegeResellApp")
+app.secret_key = os.getenv("FLASK_SECRET", "CodeSpecialist.com")
+
+# Enable insecure transport for local testing
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
+# MongoDB config
+app.config["MONGO_URI"] = os.getenv("MONGO_URI")
+mongo = PyMongo(app)
+
+if mongo.db is None:
+    raise Exception("MongoDB connection failed. Check your MONGO_URI in .env")
+
+# Google OAuth setup
 GOOGLE_CLIENT_ID = "915436979052-kkgf8a90gdori705kusi0f5mf4urelot.apps.googleusercontent.com"
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 
 flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
-    scopes=["https://www.googleapis.com/auth/userinfo.profile",
-            "https://www.googleapis.com/auth/userinfo.email", "openid"],
+    scopes=[
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email",
+        "openid"
+    ],
     redirect_uri="http://127.0.0.1:5000/callback"
 )
 
-
+# Protect routes
 def login_is_required(function):
     def wrapper(*args, **kwargs):
         if "google_id" not in session:
             return abort(401)
-        else:
-            return function()
+        return function(*args, **kwargs)
     wrapper.__name__ = function.__name__
     return wrapper
-
 
 @app.route("/login")
 def login():
@@ -39,12 +54,11 @@ def login():
     session["state"] = state
     return redirect(authorization_url)
 
-
 @app.route("/callback")
 def callback():
     flow.fetch_token(authorization_response=request.url)
 
-    if not session["state"] == request.args["state"]:
+    if session.get("state") != request.args.get("state"):
         abort(500)
 
     credentials = flow.credentials
@@ -61,19 +75,28 @@ def callback():
     session["google_id"] = id_info.get("sub")
     session["name"] = id_info.get("name")
     session["email"] = id_info.get("email")
-    return redirect("/protected_area")
 
+    # Save user in DB (upsert)
+    mongo.db.users.update_one(
+        {"google_id": session["google_id"]},
+        {"$set": {
+            "google_id": session["google_id"],
+            "name": session["name"],
+            "email": session["email"]
+        }},
+        upsert=True
+    )
+
+    return redirect("/protected_area")
 
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
-
 @app.route("/")
 def index():
-    return "Hello World <a href='/login'><button>Login with Google</button></a>"
-
+    return "Welcome to College Market! <a href='/login'><button>Login with Google</button></a>"
 
 @app.route("/protected_area")
 @login_is_required
@@ -87,21 +110,15 @@ def protected_area():
         <a href='/logout'><button>Logout</button></a>
     """
 
-
 @app.route("/buy")
 @login_is_required
 def buy():
-    products = [
-        {"name": "Calculator", "price": "₹300"},
-        {"name": "Textbook: Data Structures", "price": "₹450"},
-        {"name": "Headphones", "price": "₹700"},
-    ]
-    html = "<h2>Buy Products</h2><ul>"
+    products = mongo.db.products.find({"status": "available"})
+    html = "<h2>Available Products</h2><ul>"
     for product in products:
-        html += f"<li>{product['name']} - {product['price']}</li>"
+        html += f"<li>{product.get('name', 'Unnamed')} - ₹{product.get('price', 'N/A')} (Seller: {product.get('seller_email', 'N/A')})</li>"
     html += "</ul><br><a href='/protected_area'><button>Back</button></a>"
     return html
-
 
 @app.route("/sell", methods=["GET", "POST"])
 @login_is_required
@@ -109,9 +126,17 @@ def sell():
     if request.method == "POST":
         name = request.form["product_name"]
         price = request.form["price"]
+
+        mongo.db.products.insert_one({
+            "name": name,
+            "price": int(price),
+            "status": "available",
+            "seller_email": session["email"]
+        })
+
         return f"""
             <h3>Product Listed!</h3>
-            <p>Product: {name}<br>Price: ₹{price}</p>
+            <p>Name: {name} | Price: ₹{price}</p>
             <a href='/protected_area'><button>Back</button></a>
         """
 
@@ -125,7 +150,6 @@ def sell():
         <br>
         <a href='/protected_area'><button>Back</button></a>
     '''
-
 
 if __name__ == "__main__":
     app.run(debug=True)
