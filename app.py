@@ -57,6 +57,8 @@ def login_is_required(function):
     wrapper.__name__ = function.__name__
     return wrapper
 
+ADMIN_EMAIL = "akshatcc2@gmail.com"  # Replace with actual admin email
+
 @app.route("/login")
 def login():
     authorization_url, state = flow.authorization_url()
@@ -84,6 +86,7 @@ def callback():
     session["google_id"] = id_info.get("sub")
     session["name"] = id_info.get("name")
     session["email"] = id_info.get("email")
+    session["is_admin"] = session["email"] == ADMIN_EMAIL
 
     # Save user in DB (upsert)
     mongo.db.users.update_one(
@@ -110,9 +113,11 @@ def index():
 @app.route("/protected_area")
 @login_is_required
 def protected_area():
+    admin_button = "<a href='/admin'><button>Admin Panel</button></a><br><br>" if session.get("is_admin") else ""
     return f"""
         <h2>Welcome, {session['name']}!</h2>
         <p>Email: {session['email']}</p>
+        {admin_button}
         <a href='/buy'><button>Buy</button></a>
         <a href='/sell'><button>Sell</button></a>
         <br><br>
@@ -159,7 +164,7 @@ def sell():
             "name": name,
             "description": description,
             "price": price,
-            "status": "available",
+            "status": "pending",
             "seller_email": session["email"],
             "seller_name": seller_name,
             "phone": phone,
@@ -167,7 +172,7 @@ def sell():
         })
 
         return f"""
-            <h3>Product Listed!</h3>
+            <h3>Product Submitted for Approval!</h3>
             <p>Name: {name} | Price: ₹{price}</p>
             <a href='/protected_area'><button>Back</button></a>
         """
@@ -208,6 +213,39 @@ def sell():
         <br>
         <a href='/protected_area'><button>Back</button></a>
     '''
+
+@app.route("/admin", methods=["GET", "POST"])
+@login_is_required
+def admin():
+    if not session.get("is_admin"):
+        return abort(403)
+
+    if request.method == "POST":
+        action = request.form["action"]
+        product_id = request.form["product_id"]
+        from bson.objectid import ObjectId
+        if action == "approve":
+            mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": {"status": "available"}})
+        elif action == "reject":
+            mongo.db.products.delete_one({"_id": ObjectId(product_id)})
+
+    pending_products = list(mongo.db.products.find({"status": "pending"}))
+    html = "<h2>Pending Products</h2><ul>"
+    for product in pending_products:
+        html += f"""
+        <li>
+            <b>{product['name']}</b> - ₹{product['price']}<br>
+            {product['description']}<br>
+            Seller: {product['seller_name']} | {product['phone']}<br>
+            <form method='post'>
+                <input type='hidden' name='product_id' value='{product['_id']}'>
+                <button name='action' value='approve'>Approve</button>
+                <button name='action' value='reject'>Reject</button>
+            </form>
+        </li><br>
+        """
+    html += "</ul><br><a href='/protected_area'><button>Back</button></a>"
+    return html
 
 if __name__ == "__main__":
     app.run(debug=True)
