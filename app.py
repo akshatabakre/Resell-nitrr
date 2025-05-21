@@ -236,7 +236,13 @@ def admin():
         <li>
             <b>{product['name']}</b> - ₹{product['price']}<br>
             {product['description']}<br>
-            Seller: {product['seller_name']} | {product['phone']}<br>
+            Category: {product['category']}<br>
+            Seller: {product['seller_name']} | {product['phone']} | {product['seller_email']}<br>
+        """
+        if "image_urls" in product:
+            for url in product["image_urls"]:
+                html += f"<img src='{url}' width='150'><br>"
+        html += f"""
             <form method='post'>
                 <input type='hidden' name='product_id' value='{product['_id']}'>
                 <button name='action' value='approve'>Approve</button>
