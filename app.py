@@ -48,7 +48,6 @@ flow = Flow.from_client_secrets_file(
     redirect_uri="http://127.0.0.1:5000/callback"
 )
 
-# Protect routes
 def login_is_required(function):
     def wrapper(*args, **kwargs):
         if "google_id" not in session:
@@ -57,7 +56,7 @@ def login_is_required(function):
     wrapper.__name__ = function.__name__
     return wrapper
 
-ADMIN_EMAIL = "akshatcc2@gmail.com"  # Replace with actual admin email
+ADMIN_EMAIL = "akshatcc2@gmail.com"
 
 @app.route("/login")
 def login():
@@ -88,7 +87,6 @@ def callback():
     session["email"] = id_info.get("email")
     session["is_admin"] = session["email"] == ADMIN_EMAIL
 
-    # Save user in DB (upsert)
     mongo.db.users.update_one(
         {"google_id": session["google_id"]},
         {"$set": {
@@ -120,24 +118,53 @@ def protected_area():
         {admin_button}
         <a href='/buy'><button>Buy</button></a>
         <a href='/sell'><button>Sell</button></a>
+        <a href='/wanted_list'><button>View Wanted Items</button></a>
         <br><br>
         <a href='/logout'><button>Logout</button></a>
     """
 
-@app.route("/buy")
+@app.route("/buy", methods=["GET", "POST"])
 @login_is_required
 def buy():
+    if request.method == "POST":
+        product_name = request.form["wanted_name"]
+        description = request.form["wanted_desc"]
+        phone = request.form["contact"]
+        mongo.db.wanted.insert_one({
+            "name": product_name,
+            "description": description,
+            "contact": phone,
+            "email": session["email"],
+            "buyer_name": session["name"],
+            "status": "pending"
+        })
+        return "<p>Wanted item submitted for approval!</p><a href='/buy'><button>Back</button></a>"
+
     products = mongo.db.products.find({"status": "available"})
     html = "<h2>Available Products</h2><ul>"
     for product in products:
-        html += f"<li>{product.get('name', 'Unnamed')} - ₹{product.get('price', 'N/A')}<br>" \
-                f"Category: {product.get('category', 'N/A')}<br>" \
-                f"Seller: {product.get('seller_name', 'N/A')} | Phone: {product.get('phone', 'N/A')} | Email: {product.get('seller_email', 'N/A')}<br>"
+        html += f"<li>{product.get('name')} - ₹{product.get('price')}<br>" \
+                f"Category: {product.get('category')}<br>" \
+                f"Seller: {product.get('seller_name')} | Phone: {product.get('phone')} | Email: {product.get('seller_email')}<br>"
         if "image_urls" in product:
             for url in product["image_urls"]:
                 html += f"<img src='{url}' width='150'><br>"
         html += "</li><br><br>"
-    html += "</ul><br><a href='/protected_area'><button>Back</button></a>"
+    html += "</ul><hr>"
+
+    html += """
+    <h3>Can't find the item? List the item you want:</h3>
+    <form method='POST'>
+        <label>Item Name:</label><br>
+        <input type='text' name='wanted_name' required><br><br>
+        <label>Description:</label><br>
+        <textarea name='wanted_desc' rows='3' cols='50'></textarea><br><br>
+        <label>Contact Number:</label><br>
+        <input type='text' name='contact' required><br><br>
+        <input type='submit' value='Submit Wanted Item'>
+    </form>
+    <br><a href='/protected_area'><button>Back</button></a>
+    """
     return html
 
 @app.route("/sell", methods=["GET", "POST"])
@@ -150,10 +177,8 @@ def sell():
         price = int(request.form["price"])
         seller_name = request.form["seller_name"]
         phone = request.form["phone"]
-
         images = request.files.getlist("image")
         image_urls = []
-
         for img in images:
             if img.filename != "":
                 result = cloudinary.uploader.upload(img)
@@ -171,11 +196,7 @@ def sell():
             "image_urls": image_urls
         })
 
-        return f"""
-            <h3>Product Submitted for Approval!</h3>
-            <p>Name: {name} | Price: ₹{price}</p>
-            <a href='/protected_area'><button>Back</button></a>
-        """
+        return f"<h3>Product Submitted for Approval!</h3><a href='/protected_area'><button>Back</button></a>"
 
     return '''
         <h2>Sell a Product</h2>
@@ -189,29 +210,15 @@ def sell():
                 <option value="vehicles">Vehicles</option>
                 <option value="others">Others</option>
             </select><br><br>
-
-            <label>Product Name:</label>
-            <input type="text" name="product_name" required><br><br>
-
-            <label>Product Description:</label><br>
-            <textarea name="description" rows="4" cols="50"></textarea><br><br>
-
-            <label>Asking Price: ₹</label>
-            <input type="number" name="price" required><br><br>
-
-            <label>Product Images:</label>
-            <input type="file" name="image" multiple><br><br>
-
-            <label>Seller Name:</label>
-            <input type="text" name="seller_name" required><br><br>
-
-            <label>Phone Number:</label>
-            <input type="tel" name="phone" required><br><br>
-
+            <label>Product Name:</label><input type="text" name="product_name" required><br><br>
+            <label>Product Description:</label><textarea name="description" rows="4" cols="50"></textarea><br><br>
+            <label>Asking Price: ₹</label><input type="number" name="price" required><br><br>
+            <label>Product Images:</label><input type="file" name="image" multiple><br><br>
+            <label>Seller Name:</label><input type="text" name="seller_name" required><br><br>
+            <label>Phone Number:</label><input type="tel" name="phone" required><br><br>
             <input type="submit" value="List Product">
         </form>
-        <br>
-        <a href='/protected_area'><button>Back</button></a>
+        <br><a href='/protected_area'><button>Back</button></a>
     '''
 
 @app.route("/admin", methods=["GET", "POST"])
@@ -220,36 +227,60 @@ def admin():
     if not session.get("is_admin"):
         return abort(403)
 
+    from bson.objectid import ObjectId
+
     if request.method == "POST":
         action = request.form["action"]
-        product_id = request.form["product_id"]
-        from bson.objectid import ObjectId
-        if action == "approve":
-            mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": {"status": "available"}})
-        elif action == "reject":
-            mongo.db.products.delete_one({"_id": ObjectId(product_id)})
+        item_type = request.form["type"]
+        item_id = request.form["item_id"]
+
+        if item_type == "product":
+            if action == "approve":
+                mongo.db.products.update_one({"_id": ObjectId(item_id)}, {"$set": {"status": "available"}})
+            elif action == "reject":
+                mongo.db.products.delete_one({"_id": ObjectId(item_id)})
+        elif item_type == "wanted":
+            if action == "approve":
+                mongo.db.wanted.update_one({"_id": ObjectId(item_id)}, {"$set": {"status": "approved"}})
+            elif action == "reject":
+                mongo.db.wanted.delete_one({"_id": ObjectId(item_id)})
 
     pending_products = list(mongo.db.products.find({"status": "pending"}))
+    pending_wanted = list(mongo.db.wanted.find({"status": "pending"}))
+
     html = "<h2>Pending Products</h2><ul>"
     for product in pending_products:
-        html += f"""
-        <li>
-            <b>{product['name']}</b> - ₹{product['price']}<br>
-            {product['description']}<br>
-            Category: {product['category']}<br>
-            Seller: {product['seller_name']} | {product['phone']} | {product['seller_email']}<br>
-        """
-        if "image_urls" in product:
-            for url in product["image_urls"]:
-                html += f"<img src='{url}' width='150'><br>"
+        html += f"<li><b>{product['name']}</b> - ₹{product['price']}<br>{product['description']}<br>" \
+                f"Seller: {product['seller_name']} | {product['phone']}<br>"
+        for url in product.get("image_urls", []):
+            html += f"<img src='{url}' width='150'><br>"
         html += f"""
             <form method='post'>
-                <input type='hidden' name='product_id' value='{product['_id']}'>
+                <input type='hidden' name='item_id' value='{product['_id']}'>
+                <input type='hidden' name='type' value='product'>
                 <button name='action' value='approve'>Approve</button>
                 <button name='action' value='reject'>Reject</button>
-            </form>
-        </li><br>
+            </form></li><br>
         """
+    html += "</ul><hr><h2>Pending Wanted Items</h2><ul>"
+    for item in pending_wanted:
+        html += f"<li><b>{item['name']}</b><br>{item['description']}<br>Contact: {item['contact']}<br>Buyer: {item.get('buyer_name', 'Unknown')}<br>" \
+                f"<form method='post'>" \
+                f"<input type='hidden' name='item_id' value='{item['_id']}'>" \
+                f"<input type='hidden' name='type' value='wanted'>" \
+                f"<button name='action' value='approve'>Approve</button>" \
+                f"<button name='action' value='reject'>Reject</button>" \
+                f"</form></li><br>"
+    html += "</ul><br><a href='/protected_area'><button>Back</button></a>"
+    return html
+
+@app.route("/wanted_list")
+@login_is_required
+def wanted_list():
+    wanted_items = mongo.db.wanted.find({"status": "approved"})
+    html = "<h2>Wanted Products (Approved)</h2><ul>"
+    for item in wanted_items:
+        html += f"<li><b>{item['name']}</b><br>{item['description']}<br>Contact: {item['contact']}<br>Buyer: {item.get('buyer_name', 'Unknown')}</li><br>"
     html += "</ul><br><a href='/protected_area'><button>Back</button></a>"
     return html
 
