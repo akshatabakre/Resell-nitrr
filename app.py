@@ -61,7 +61,7 @@ ADMIN_EMAIL = "akshatcc2@gmail.com"
 
 @app.route("/")
 def index():
-    return render_template("home.html")
+    return render_template("index.html")  # ✅ updated from home.html
 
 @app.route("/login")
 def login():
