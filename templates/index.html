@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Home | CollegeResell{% endblock %}
+
+{% block content %}
+<div class="center-box">
+    <div class="welcome-title">Welcome to College Market</div>
+    <a class="google-btn" href="{{ url_for('login') }}">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Google_Favicon_2025.svg/250px-Google_Favicon_2025.svg.png" alt="Google logo">
+        Login with Google
+    </a>
+</div>
+{% endblock %}
