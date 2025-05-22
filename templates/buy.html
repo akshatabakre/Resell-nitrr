@@ -1,9 +1,38 @@
-<!DOCTYPE html>
-<html>
-<head><title>Buy</title></head>
-<body>
-    <h2>Buy Products - Hello {{ name }}</h2>
-    <p>Product listings will appear here.</p>
-    <a href="/home"><button>Back to Home</button></a>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Available Products</h2>
+<ul>
+    {% for product in products %}
+    <li>
+        <b>{{ product.name }}</b> - ₹{{ product.price }}<br>
+        Category: {{ product.category }}<br>
+        Seller: {{ product.seller_name }} | Phone: {{ product.phone }} | Email: {{ product.seller_email }}<br>
+        {% for url in product.image_urls %}
+            <img src="{{ url }}" width="150"><br>
+        {% endfor %}
+    </li>
+    <br>
+    {% endfor %}
+</ul>
+<hr>
+
+<h3>Can't find the item? List the item you want:</h3>
+<form method="POST">
+    <label>Your Name:</label><br>
+    <input type="text" name="buyer_name" required><br><br>
+
+    <label>Item Name:</label><br>
+    <input type="text" name="wanted_name" required><br><br>
+
+    <label>Description:</label><br>
+    <textarea name="wanted_desc" rows="3" cols="50"></textarea><br><br>
+
+    <label>Contact Number:</label><br>
+    <input type="text" name="contact" required><br><br>
+
+    <input type="submit" value="Submit Wanted Item" class="btn btn-primary">
+</form>
+<br>
+<a href="/protected_area" class="btn btn-secondary">Back</a>
+{% endblock %}

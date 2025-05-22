@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Welcome, {{ name }}!</h2>
+<p>Email: {{ email }}</p>
+
+{% if is_admin %}
+<a href="/admin" class="btn btn-warning mb-2">Admin Panel</a><br>
+{% endif %}
+
+<a href="/buy" class="btn btn-success">Buy</a>
+<a href="/sell" class="btn btn-info">Sell</a>
+<a href="/wanted_list" class="btn btn-secondary">View Wanted Items</a>
+<br><br>
+<a href="/logout" class="btn btn-danger">Logout</a>
+{% endblock %}

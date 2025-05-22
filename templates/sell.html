@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Sell a Product</h2>
+<form method="post" enctype="multipart/form-data">
+    <label>Category:</label>
+    <select name="category" class="form-select">
+        <option value="electronics">Electronics</option>
+        <option value="groceries">Groceries</option>
+        <option value="study stuff">Study Stuff</option>
+        <option value="hostel stuff">Hostel Stuff</option>
+        <option value="vehicles">Vehicles</option>
+        <option value="others">Others</option>
+    </select><br>
+
+    <label>Product Name:</label>
+    <input type="text" name="product_name" required class="form-control"><br>
+
+    <label>Product Description:</label>
+    <textarea name="description" rows="4" cols="50" class="form-control"></textarea><br>
+
+    <label>Asking Price: ₹</label>
+    <input type="number" name="price" required class="form-control"><br>
+
+    <label>Product Images:</label>
+    <input type="file" name="image" multiple class="form-control"><br>
+
+    <label>Seller Name:</label>
+    <input type="text" name="seller_name" required class="form-control"><br>
+
+    <label>Phone Number:</label>
+    <input type="tel" name="phone" required class="form-control"><br>
+
+    <input type="submit" value="List Product" class="btn btn-success">
+</form>
+<br>
+<a href="/protected_area" class="btn btn-secondary">Back</a>
+{% endblock %}
