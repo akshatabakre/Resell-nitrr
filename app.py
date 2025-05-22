@@ -24,17 +24,14 @@ cloudinary.config(
 app = Flask("CollegeResellApp")
 app.secret_key = os.getenv("FLASK_SECRET", "CodeSpecialist.com")
 
-# Enable insecure transport for local testing
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
-# MongoDB config
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 mongo = PyMongo(app)
 
 if mongo.db is None:
     raise Exception("MongoDB connection failed. Check your MONGO_URI in .env")
 
-# Google OAuth setup
 GOOGLE_CLIENT_ID = "915436979052-kkgf8a90gdori705kusi0f5mf4urelot.apps.googleusercontent.com"
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 
@@ -130,14 +127,17 @@ def buy():
         product_name = request.form["wanted_name"]
         description = request.form["wanted_desc"]
         phone = request.form["contact"]
+        buyer_name = request.form["buyer_name"]  # manually entered
+
         mongo.db.wanted.insert_one({
             "name": product_name,
             "description": description,
             "contact": phone,
+            "buyer_name": buyer_name,
             "email": session["email"],
-            "buyer_name": session["name"],
             "status": "pending"
         })
+
         return "<p>Wanted item submitted for approval!</p><a href='/buy'><button>Back</button></a>"
 
     products = mongo.db.products.find({"status": "available"})
@@ -155,6 +155,8 @@ def buy():
     html += """
     <h3>Can't find the item? List the item you want:</h3>
     <form method='POST'>
+        <label>Your Name:</label><br>
+        <input type='text' name='buyer_name' required><br><br>
         <label>Item Name:</label><br>
         <input type='text' name='wanted_name' required><br><br>
         <label>Description:</label><br>
