@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Pending Products</h2>
+<ul>
+    {% for product in pending_products %}
+    <li>
+        <b>{{ product.name }}</b> - ₹{{ product.price }}<br>{{ product.description }}<br>
+        Seller: {{ product.seller_name }} | {{ product.phone }}<br>
+        {% for url in product.image_urls %}
+            <img src="{{ url }}" width="150"><br>
+        {% endfor %}
+        <form method="post">
+            <input type="hidden" name="item_id" value="{{ product._id }}">
+            <input type="hidden" name="type" value="product">
+            <button name="action" value="approve" class="btn btn-success">Approve</button>
+            <button name="action" value="reject" class="btn btn-danger">Reject</button>
+        </form>
+    </li>
+    <br>
+    {% endfor %}
+</ul>
+
+<hr>
+<h2>Pending Wanted Items</h2>
+<ul>
+    {% for item in pending_wanted %}
+    <li>
+        <b>{{ item.name }}</b><br>{{ item.description }}<br>
+        Buyer: {{ item.buyer_name }} | Contact: {{ item.contact }}<br>
+        <form method="post">
+            <input type="hidden" name="item_id" value="{{ item._id }}">
+            <input type="hidden" name="type" value="wanted">
+            <button name="action" value="approve" class="btn btn-success">Approve</button>
+            <button name="action" value="reject" class="btn btn-danger">Reject</button>
+        </form>
+    </li>
+    <br>
+    {% endfor %}
+</ul>
+
+<a href="/protected_area" class="btn btn-secondary">Back</a>
+{% endblock %}
