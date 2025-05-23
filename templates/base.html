@@ -8,71 +8,130 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: url('{{ url_for('static', filename='home bg.jpg') }}') no-repeat center center fixed;
-            background-size: cover;
-            min-height: 100vh;
-        }
+    body {
+        font-family: 'Poppins', sans-serif;
+        position: relative;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+    }
 
-        .center-box {
-            min-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: #e5131d;
-        }
+    /* Background image with brightness filter and overlay */
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('{{ url_for('static', filename='home bg.jpg') }}') no-repeat center center fixed;
+        background-size: cover;
+        filter: brightness(0.69);
+        z-index: -2;
+    }
 
+    body::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.3);
+        z-index: -1;
+    }
 
-        .welcome-title {
-            font-size: 3rem;
-            font-weight: 600;
-            text-shadow: 2px 2px 8px rgba(225, 65, 201, 0.8);
-            margin-bottom: 30px;
-        }
+    .center-box {
+        min-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: #e5131d;
+    }
 
-        .google-btn {
-            display: inline-flex;
-            align-items: center;
-            background-color: white;
-            color: #444;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 500;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease;
-        }
+    .welcome-title {
+        font-size: 3rem;
+        font-weight: 600;
+        text-shadow: 2px 2px 8px rgba(225, 65, 201, 0.8);
+        margin-bottom: 30px;
+        color: #fff; /* Make title white for better contrast */
+    }
 
-        .google-btn:hover {
-            background-color: #f1f1f1;
-        }
+    .google-btn {
+        display: inline-flex;
+        align-items: center;
+        background-color: white;
+        color: #444;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 500;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s ease;
+    }
 
-        .google-btn img {
-            width: 20px;
-            margin-right: 10px;
-        }
-    </style>
+    .google-btn:hover {
+        background-color: #f1f1f1;
+    }
+
+    .google-btn img {
+        width: 20px;
+        margin-right: 10px;
+    }
+
+    .navbar-nav .nav-link:hover {
+        color: #ffd54f !important; /* Soft yellow on hover */
+        text-decoration: underline;
+    }
+
+    .navbar-brand:hover {
+        color: #ffccbc !important;
+    }
+</style>
+
 </head>
 <body>
-<nav class="navbar navbar-expand-lg bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('index') }}">CollegeResell</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ms-auto">
-                {% if session.get('user') %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('buy') }}">Buy</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('sell') }}">Sell</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
-                {% else %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color:rgb(185, 2, 5);">
+    <a class="navbar-brand ms-3 fw-bold" href="{{ url_for('protected_area') }}">CollegeResell</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav" aria-controls="navbarNav"
+            aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto me-3">
+            {% if session.get('user') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('protected_area') }}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('buy') }}">Buy</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('sell') }}">Sell</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('wanted_list') }}">Wanted</a>
+                </li>
+                {% if session['user']['email'] == "akshatcc2@gmail.com" %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin') }}">Admin</a>
+                </li>
                 {% endif %}
-            </ul>
-        </div>
+                <li class="nav-item">
+                    <a class="nav-link text-warning" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                </li>
+            {% endif %}
+        </ul>
     </div>
 </nav>
+
 
 <div class="container">
     {% with messages = get_flashed_messages() %}
