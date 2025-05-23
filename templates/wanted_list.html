@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Wanted Products (Approved)</h2>
+<ul>
+    {% for item in wanted_items %}
+    <li>
+        <b>{{ item.name }}</b><br>{{ item.description }}<br>
+        Buyer: {{ item.buyer_name }} | Contact: {{ item.contact }}
+    </li>
+    <br>
+    {% endfor %}
+</ul>
+
+<a href="/protected_area" class="btn btn-secondary">Back</a>
+{% endblock %}
