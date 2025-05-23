@@ -1,7 +1,7 @@
 import os
 import pathlib
 import requests
-from flask import Flask, session, abort, redirect, request, render_template
+from flask import Flask, session, abort, redirect, request, render_template, flash
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
@@ -61,7 +61,7 @@ ADMIN_EMAIL = "akshatcc2@gmail.com"
 
 @app.route("/")
 def index():
-    return render_template("index.html")  # ✅ updated from home.html
+    return render_template("index.html")
 
 @app.route("/login")
 def login():
@@ -203,6 +203,52 @@ def admin():
 def wanted_list():
     wanted_items = list(mongo.db.wanted.find({"status": "approved"}))
     return render_template("wanted_list.html", wanted_items=wanted_items)
+
+# New route: View my listings
+@app.route("/my_listings")
+@login_is_required
+def my_listings():
+    products = list(mongo.db.products.find({
+        "seller_email": session["email"],
+        "status": {"$in": ["available", "pending"]}
+    }))
+    return render_template("my_listings.html", products=products)
+
+# New route: Edit a listing
+@app.route("/edit_listing/<product_id>", methods=["GET", "POST"])
+@login_is_required
+def edit_listing(product_id):
+    product = mongo.db.products.find_one({"_id": ObjectId(product_id), "seller_email": session["email"]})
+    if not product:
+        abort(404)
+
+    if request.method == "POST":
+        updated_data = {
+            "category": request.form["category"],
+            "name": request.form["product_name"],
+            "description": request.form["description"],
+            "price": int(request.form["price"]),
+            "seller_name": request.form["seller_name"],
+            "phone": request.form["phone"]
+        }
+
+        mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": updated_data})
+        flash("Listing updated successfully.")
+        return redirect("/my_listings")
+
+    return render_template("edit_listing.html", product=product)
+
+# New route: Mark product as sold
+@app.route("/mark_sold/<product_id>", methods=["POST"])
+@login_is_required
+def mark_sold(product_id):
+    product = mongo.db.products.find_one({"_id": ObjectId(product_id), "seller_email": session["email"]})
+    if not product:
+        abort(404)
+
+    mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": {"status": "sold"}})
+    flash("Product marked as sold.")
+    return redirect("/my_listings")
 
 if __name__ == "__main__":
     app.run(debug=True)
