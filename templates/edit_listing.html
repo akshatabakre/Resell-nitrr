@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Listing</title>
+</head>
+<body>
+    <h1>Edit Your Product Listing</h1>
+    <form method="POST">
+        <label>Category:
+            <input type="text" name="category" value="{{ product.category }}" required>
+        </label><br><br>
+
+        <label>Product Name:
+            <input type="text" name="product_name" value="{{ product.name }}" required>
+        </label><br><br>
+
+        <label>Description:
+            <textarea name="description" required>{{ product.description }}</textarea>
+        </label><br><br>
+
+        <label>Price:
+            <input type="number" name="price" value="{{ product.price }}" required>
+        </label><br><br>
+
+        <label>Your Name:
+            <input type="text" name="seller_name" value="{{ product.seller_name }}" required>
+        </label><br><br>
+
+        <label>Phone:
+            <input type="text" name="phone" value="{{ product.phone }}" required>
+        </label><br><br>
+
+        <button type="submit">Update Listing</button>
+    </form>
+
+    <p><a href="{{ url_for('my_listings') }}">Back to My Listings</a></p>
+</body>
+</html>

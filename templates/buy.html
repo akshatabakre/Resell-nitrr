@@ -2,19 +2,24 @@
 
 {% block content %}
 <h2>Available Products</h2>
+
 <ul>
     {% for product in products %}
-    <li>
+    {% if product.status == "available" %}
+    <li style="border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 5px;">
         <b>{{ product.name }}</b> - ₹{{ product.price }}<br>
-        Category: {{ product.category }}<br>
-        Seller: {{ product.seller_name }} | Phone: {{ product.phone }} | Email: {{ product.seller_email }}<br>
+        <small>Category:</small> {{ product.category }}<br>
+        <small>Seller:</small> {{ product.seller_name }} | 
+        <small>Phone:</small> {{ product.phone }} | 
+        <small>Email:</small> {{ product.seller_email }}<br><br>
         {% for url in product.image_urls %}
             <img src="{{ url }}" width="150"><br>
         {% endfor %}
     </li>
-    <br>
+    {% endif %}
     {% endfor %}
 </ul>
+
 <hr>
 
 <h3>Can't find the item? List the item you want:</h3>
