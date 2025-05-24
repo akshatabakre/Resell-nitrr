@@ -214,7 +214,50 @@ def my_listings():
     return render_template("my_listings.html", products=products)
 
 
-@app.route("/edit_listing/<product_id>", methods=["GET", "POST"])
+# @app.route("/edit_listing/<product_id>", methods=["GET", "POST"])
+# @login_is_required
+# def edit_listing(product_id):
+#     product = mongo.db.products.find_one({"_id": ObjectId(product_id), "seller_email": session["email"]})
+#     if not product:
+#         abort(404)
+
+#     if request.method == "POST":
+#         updated_data = {
+#             "category": request.form["category"],
+#             "name": request.form["product_name"],
+#             "description": request.form["description"],
+#             "price": int(request.form["price"]),
+#             "seller_name": request.form["seller_name"],
+#             "phone": request.form["phone"]
+#         }
+
+#         # Current image URLs
+#         current_images = product.get("image_urls", [])
+
+#         # Deleted image URLs
+#         delete_images = request.form.getlist("delete_images")
+
+#         # Keep only the images not marked for deletion
+#         updated_images = [img for img in current_images if img not in delete_images]
+
+#         # Upload new images
+#         new_images = request.files.getlist("new_images")
+#         for img in new_images:
+#             if img and img.filename != "":
+#                 result = cloudinary.uploader.upload(img)
+#                 updated_images.append(result['secure_url'])
+
+#         # Final image list
+#         updated_data["image_urls"] = updated_images
+
+#         # Save updated product
+#         mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": updated_data})
+#         flash("Listing updated successfully.")
+#         return redirect("/my_listings")
+
+#     return render_template("edit_listing.html", product=product)
+
+@app.route("/my_listings/<product_id>", methods=["GET", "POST"])
 @login_is_required
 def edit_listing(product_id):
     product = mongo.db.products.find_one({"_id": ObjectId(product_id), "seller_email": session["email"]})
@@ -228,31 +271,25 @@ def edit_listing(product_id):
             "description": request.form["description"],
             "price": int(request.form["price"]),
             "seller_name": request.form["seller_name"],
-            "phone": request.form["phone"]
+            "phone": request.form["phone"],
+            "status": "pending"  # 🔥 Important: this makes admin reapprove the listing
         }
 
-        # Current image URLs
+        # Handle image updates
         current_images = product.get("image_urls", [])
-
-        # Deleted image URLs
         delete_images = request.form.getlist("delete_images")
-
-        # Keep only the images not marked for deletion
         updated_images = [img for img in current_images if img not in delete_images]
 
-        # Upload new images
         new_images = request.files.getlist("new_images")
         for img in new_images:
             if img and img.filename != "":
                 result = cloudinary.uploader.upload(img)
                 updated_images.append(result['secure_url'])
 
-        # Final image list
         updated_data["image_urls"] = updated_images
 
-        # Save updated product
         mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": updated_data})
-        flash("Listing updated successfully.")
+        flash("Listing updated and sent for admin approval.")
         return redirect("/my_listings")
 
     return render_template("edit_listing.html", product=product)
