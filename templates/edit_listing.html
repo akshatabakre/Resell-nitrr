@@ -2,38 +2,94 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Listing</title>
+    <title>Edit Your Listing</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .image-preview {
+            position: relative;
+            display: inline-block;
+            margin: 10px;
+        }
+
+        .image-preview img {
+            max-width: 150px;
+            border-radius: 5px;
+        }
+
+        .delete-checkbox {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: white;
+            padding: 2px 5px;
+            border-radius: 5px;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+        }
+    </style>
 </head>
-<body>
-    <h1>Edit Your Product Listing</h1>
-    <form method="POST">
-        <label>Category:
-            <input type="text" name="category" value="{{ product.category }}" required>
-        </label><br><br>
+<body class="bg-light">
+    <div class="container py-5">
+        <h2 class="mb-4">Edit Your Listing</h2>
+        <form method="POST" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
+            <div class="form-section">
+                <label for="category" class="form-label">Category:</label>
+                <input type="text" class="form-control" name="category" value="{{ product.category }}" required>
+            </div>
 
-        <label>Product Name:
-            <input type="text" name="product_name" value="{{ product.name }}" required>
-        </label><br><br>
+            <div class="form-section">
+                <label for="product_name" class="form-label">Product Name:</label>
+                <input type="text" class="form-control" name="product_name" value="{{ product.name }}" required>
+            </div>
 
-        <label>Description:
-            <textarea name="description" required>{{ product.description }}</textarea>
-        </label><br><br>
+            <div class="form-section">
+                <label for="description" class="form-label">Description:</label>
+                <textarea class="form-control" name="description" rows="3" required>{{ product.description }}</textarea>
+            </div>
 
-        <label>Price:
-            <input type="number" name="price" value="{{ product.price }}" required>
-        </label><br><br>
+            <div class="form-section">
+                <label for="price" class="form-label">Price:</label>
+                <input type="number" class="form-control" name="price" value="{{ product.price }}" required>
+            </div>
 
-        <label>Your Name:
-            <input type="text" name="seller_name" value="{{ product.seller_name }}" required>
-        </label><br><br>
+            <div class="form-section">
+                <label for="seller_name" class="form-label">Seller Name:</label>
+                <input type="text" class="form-control" name="seller_name" value="{{ product.seller_name }}" required>
+            </div>
 
-        <label>Phone:
-            <input type="text" name="phone" value="{{ product.phone }}" required>
-        </label><br><br>
+            <div class="form-section">
+                <label for="phone" class="form-label">Contact Number:</label>
+                <input type="text" class="form-control" name="phone" value="{{ product.phone }}" required>
+            </div>
 
-        <button type="submit">Update Listing</button>
-    </form>
+            <div class="form-section">
+                <h5>Current Images</h5>
+                {% if product.image_urls %}
+                    <div class="d-flex flex-wrap">
+                        {% for url in product.image_urls %}
+                        <div class="image-preview">
+                            <img src="{{ url }}" alt="Product Image" class="img-thumbnail">
+                            <label class="delete-checkbox">
+                                <input type="checkbox" name="delete_images" value="{{ url }}"> Delete
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No images available for this product.</p>
+                {% endif %}
+            </div>
 
-    <p><a href="{{ url_for('my_listings') }}">Back to My Listings</a></p>
+            <div class="form-section">
+                <h5>Add New Images</h5>
+                <input type="file" class="form-control" name="new_images" multiple>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3">Update Listing</button>
+            <a href="/my_listings" class="btn btn-secondary mt-3">Cancel</a>
+        </form>
+    </div>
 </body>
 </html>

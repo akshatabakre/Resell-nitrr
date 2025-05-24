@@ -114,29 +114,6 @@ def logout():
 def protected_area():
     return render_template("protected_area.html", name=session['name'], email=session['email'], is_admin=session.get("is_admin"))
 
-# @app.route("/buy", methods=["GET", "POST"])
-# @login_is_required
-# def buy():
-#     if request.method == "POST":
-#         buyer_name = request.form["buyer_name"]
-#         product_name = request.form["wanted_name"]
-#         description = request.form["wanted_desc"]
-#         phone = request.form["contact"]
-
-#         mongo.db.wanted.insert_one({
-#             "name": product_name,
-#             "description": description,
-#             "contact": phone,
-#             "email": session["email"],
-#             "buyer_name": buyer_name,
-#             "status": "pending"
-#         })
-
-#         return render_template("wanted_submitted.html")
-
-#     products = list(mongo.db.products.find({"status": "available"}))
-#     return render_template("buy.html", products=products)
-
 @app.route("/buy", methods=["GET", "POST"])
 @login_is_required
 def buy():
@@ -236,6 +213,7 @@ def my_listings():
     }))
     return render_template("my_listings.html", products=products)
 
+
 @app.route("/edit_listing/<product_id>", methods=["GET", "POST"])
 @login_is_required
 def edit_listing(product_id):
@@ -253,11 +231,32 @@ def edit_listing(product_id):
             "phone": request.form["phone"]
         }
 
+        # Current image URLs
+        current_images = product.get("image_urls", [])
+
+        # Deleted image URLs
+        delete_images = request.form.getlist("delete_images")
+
+        # Keep only the images not marked for deletion
+        updated_images = [img for img in current_images if img not in delete_images]
+
+        # Upload new images
+        new_images = request.files.getlist("new_images")
+        for img in new_images:
+            if img and img.filename != "":
+                result = cloudinary.uploader.upload(img)
+                updated_images.append(result['secure_url'])
+
+        # Final image list
+        updated_data["image_urls"] = updated_images
+
+        # Save updated product
         mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": updated_data})
         flash("Listing updated successfully.")
         return redirect("/my_listings")
 
     return render_template("edit_listing.html", product=product)
+
 
 @app.route("/mark_sold/<product_id>", methods=["POST"])
 @login_is_required
