@@ -114,13 +114,36 @@ def logout():
 def protected_area():
     return render_template("protected_area.html", name=session['name'], email=session['email'], is_admin=session.get("is_admin"))
 
+# @app.route("/buy", methods=["GET", "POST"])
+# @login_is_required
+# def buy():
+#     if request.method == "POST":
+#         buyer_name = request.form["buyer_name"]
+#         product_name = request.form["wanted_name"]
+#         description = request.form["wanted_desc"]
+#         phone = request.form["contact"]
+
+#         mongo.db.wanted.insert_one({
+#             "name": product_name,
+#             "description": description,
+#             "contact": phone,
+#             "email": session["email"],
+#             "buyer_name": buyer_name,
+#             "status": "pending"
+#         })
+
+#         return render_template("wanted_submitted.html")
+
+#     products = list(mongo.db.products.find({"status": "available"}))
+#     return render_template("buy.html", products=products)
+
 @app.route("/buy", methods=["GET", "POST"])
 @login_is_required
 def buy():
     if request.method == "POST":
-        buyer_name = request.form["buyer_name"]
-        product_name = request.form["wanted_name"]
-        description = request.form["wanted_desc"]
+        buyer_name = request.form["name"]  # name = from input field in HTML
+        product_name = request.form["product_name"]
+        description = request.form.get("description", "")
         phone = request.form["contact"]
 
         mongo.db.wanted.insert_one({
