@@ -1,36 +1,58 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2 class="mb-4">Available Products</h2>
+<div class="container mt-4">
+    <h2 class="mb-4">Available Products</h2>
 
-{% if products %}
-<div class="row row-cols-1 row-cols-md-3 g-4">
-    {% for product in products %}
-    <div class="col">
-        <div class="card h-100 shadow-sm">
-            {% if product.image_urls %}
-            <img src="{{ product.image_urls[0] }}" class="card-img-top" alt="Product Image" style="height: 200px; object-fit: cover;">
-            {% else %}
-            <img src="https://via.placeholder.com/300x200.png?text=No+Image" class="card-img-top" alt="No Image">
-            {% endif %}
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title">{{ product.product_name }}</h5>
-                <p class="card-text"><strong>Category:</strong> {{ product.category }}</p>
-                {% if product.description %}
-                    <p class="card-text">{{ product.description[:100] }}{% if product.description|length > 100 %}...{% endif %}</p>
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if product.image_urls %}
+                <img src="{{ product.image_urls[0] }}" class="card-img-top" alt="Product Image" style="height: 200px; object-fit: cover;">
                 {% else %}
-                    <p class="card-text text-muted">No description provided.</p>
+                <img src="https://via.placeholder.com/300x200?text=No+Image" class="card-img-top" alt="No Image">
                 {% endif %}
-                <p class="card-text"><strong>Price:</strong> ₹{{ product.price }}</p>
-                <a href="{{ url_for('product_detail', product_id=product._id|string) }}" class="btn btn-primary mt-auto">View Details</a>
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ product.product_name }}</h5>
+                    <p class="card-text"><strong>Category:</strong> {{ product.category }}</p>
+                    <p class="card-text"><strong>Price:</strong> ₹{{ product.price }}</p>
+                    {% if product.description %}
+                        <p class="card-text">{{ product.description[:100] }}{% if product.description|length > 100 %}...{% endif %}</p>
+                    {% else %}
+                        <p class="card-text text-muted">No description available.</p>
+                    {% endif %}
+                    <a href="{{ url_for('product_detail', product_id=product._id|string) }}" class="btn btn-primary mt-auto">View Details</a>
+                </div>
             </div>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
-{% else %}
-<p>No products available at the moment.</p>
-{% endif %}
 
-<a href="/protected_area" class="btn btn-secondary mt-4">Back</a>
+    <hr class="mt-5">
+
+    <div class="mt-4 mb-5">
+        <h3 class="mb-3">Didn't find what you’re looking for?</h3>
+        <p>List your wanted item and we'll notify sellers!</p>
+        <form method="POST" action="/buy">
+            <div class="mb-3">
+                <label for="yourName" class="form-label">Your Name:</label>
+                <input type="text" id="yourName" name="name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="wantedName" class="form-label">Product Name:</label>
+                <input type="text" id="wantedName" name="product_name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="wantedDesc" class="form-label">Description (optional):</label>
+                <textarea id="wantedDesc" name="description" rows="3" class="form-control"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="contact" class="form-label">Your Contact Number:</label>
+                <input type="tel" id="contact" name="contact" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success">Submit Wanted Item</button>
+        </form>
+    </div>
+</div>
 {% endblock %}
