@@ -204,7 +204,6 @@ def wanted_list():
     wanted_items = list(mongo.db.wanted.find({"status": "approved"}))
     return render_template("wanted_list.html", wanted_items=wanted_items)
 
-# New route: View my listings
 @app.route("/my_listings")
 @login_is_required
 def my_listings():
@@ -214,7 +213,6 @@ def my_listings():
     }))
     return render_template("my_listings.html", products=products)
 
-# New route: Edit a listing
 @app.route("/edit_listing/<product_id>", methods=["GET", "POST"])
 @login_is_required
 def edit_listing(product_id):
@@ -238,7 +236,6 @@ def edit_listing(product_id):
 
     return render_template("edit_listing.html", product=product)
 
-# New route: Mark product as sold
 @app.route("/mark_sold/<product_id>", methods=["POST"])
 @login_is_required
 def mark_sold(product_id):
@@ -249,6 +246,14 @@ def mark_sold(product_id):
     mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": {"status": "sold"}})
     flash("Product marked as sold.")
     return redirect("/my_listings")
+
+@app.route("/product/<product_id>")
+@login_is_required
+def product_detail(product_id):
+    product = mongo.db.products.find_one({"_id": ObjectId(product_id), "status": "available"})
+    if not product:
+        abort(404)
+    return render_template("product_detail.html", product=product)
 
 if __name__ == "__main__":
     app.run(debug=True)
