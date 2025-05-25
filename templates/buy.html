@@ -4,6 +4,25 @@
 <div class="container mt-4">
     <h2 class="mb-4">Available Products</h2>
 
+    <!-- 🔍 Search and Filter Form -->
+    <form method="GET" action="/buy" class="row g-3 mb-4">
+        <div class="col-md-6">
+            <input type="text" name="search" class="form-control" placeholder="Search by product name" value="{{ search_query or '' }}">
+        </div>
+        <div class="col-md-4">
+            <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                    <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Apply</button>
+        </div>
+    </form>
+
+    <!-- 🛒 Product Cards -->
     <div class="row">
         {% for product in products %}
         <div class="col-md-4 mb-4">
@@ -26,11 +45,16 @@
                 </div>
             </div>
         </div>
+        {% else %}
+        <div class="col-12">
+            <p class="text-muted">No products found matching your criteria.</p>
+        </div>
         {% endfor %}
     </div>
 
     <hr class="mt-5">
 
+    <!-- 📝 Wanted Item Form -->
     <div class="mt-4 mb-5">
         <h3 class="mb-3">Didn't find what you’re looking for?</h3>
         <p>List your wanted item and we'll notify sellers!</p>

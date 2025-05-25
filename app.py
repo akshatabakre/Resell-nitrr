@@ -114,11 +114,35 @@ def logout():
 def protected_area():
     return render_template("protected_area.html", name=session['name'], email=session['email'], is_admin=session.get("is_admin"))
 
+# @app.route("/buy", methods=["GET", "POST"])
+# @login_is_required
+# def buy():
+#     if request.method == "POST":
+#         buyer_name = request.form["name"]  # name = from input field in HTML
+#         product_name = request.form["product_name"]
+#         description = request.form.get("description", "")
+#         phone = request.form["contact"]
+
+#         mongo.db.wanted.insert_one({
+#             "name": product_name,
+#             "description": description,
+#             "contact": phone,
+#             "email": session["email"],
+#             "buyer_name": buyer_name,
+#             "status": "pending"
+#         })
+
+#         return render_template("wanted_submitted.html")
+
+#     products = list(mongo.db.products.find({"status": "available"}))
+#     return render_template("buy.html", products=products)
+
+
 @app.route("/buy", methods=["GET", "POST"])
 @login_is_required
 def buy():
     if request.method == "POST":
-        buyer_name = request.form["name"]  # name = from input field in HTML
+        buyer_name = request.form["name"]
         product_name = request.form["product_name"]
         description = request.form.get("description", "")
         phone = request.form["contact"]
@@ -134,8 +158,24 @@ def buy():
 
         return render_template("wanted_submitted.html")
 
-    products = list(mongo.db.products.find({"status": "available"}))
-    return render_template("buy.html", products=products)
+    # GET method — handle search and filtering
+    search_query = request.args.get("search", "").strip().lower()
+    category_filter = request.args.get("category", "").strip()
+
+    query = {"status": "available"}
+
+    if search_query:
+        query["name"] = {"$regex": search_query, "$options": "i"}  # case-insensitive
+
+    if category_filter:
+        query["category"] = category_filter
+
+    products = list(mongo.db.products.find(query))
+    categories = mongo.db.products.distinct("category")  # for dropdown
+
+    return render_template("buy.html", products=products, categories=categories, selected_category=category_filter, search_query=search_query)
+
+
 
 @app.route("/sell", methods=["GET", "POST"])
 @login_is_required
@@ -212,50 +252,6 @@ def my_listings():
         "status": {"$in": ["available", "pending"]}
     }))
     return render_template("my_listings.html", products=products)
-
-
-# @app.route("/edit_listing/<product_id>", methods=["GET", "POST"])
-# @login_is_required
-# def edit_listing(product_id):
-#     product = mongo.db.products.find_one({"_id": ObjectId(product_id), "seller_email": session["email"]})
-#     if not product:
-#         abort(404)
-
-#     if request.method == "POST":
-#         updated_data = {
-#             "category": request.form["category"],
-#             "name": request.form["product_name"],
-#             "description": request.form["description"],
-#             "price": int(request.form["price"]),
-#             "seller_name": request.form["seller_name"],
-#             "phone": request.form["phone"]
-#         }
-
-#         # Current image URLs
-#         current_images = product.get("image_urls", [])
-
-#         # Deleted image URLs
-#         delete_images = request.form.getlist("delete_images")
-
-#         # Keep only the images not marked for deletion
-#         updated_images = [img for img in current_images if img not in delete_images]
-
-#         # Upload new images
-#         new_images = request.files.getlist("new_images")
-#         for img in new_images:
-#             if img and img.filename != "":
-#                 result = cloudinary.uploader.upload(img)
-#                 updated_images.append(result['secure_url'])
-
-#         # Final image list
-#         updated_data["image_urls"] = updated_images
-
-#         # Save updated product
-#         mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": updated_data})
-#         flash("Listing updated successfully.")
-#         return redirect("/my_listings")
-
-#     return render_template("edit_listing.html", product=product)
 
 @app.route("/my_listings/<product_id>", methods=["GET", "POST"])
 @login_is_required
