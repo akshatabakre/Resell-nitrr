@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Wanted Item</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-section {
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <h2 class="mb-4">Edit Your Wanted Item</h2>
+        <form method="POST" class="bg-white p-4 rounded shadow-sm">
+            <div class="form-section">
+                <label for="name" class="form-label">Your Name:</label>
+                <input type="text" class="form-control" name="name" value="{{ wanted.name }}" required>
+            </div>
+
+            <div class="form-section">
+                <label for="product_name" class="form-label">Product Name:</label>
+                <input type="text" class="form-control" name="product_name" value="{{ wanted.product_name }}" required>
+            </div>
+
+            <div class="form-section">
+                <label for="description" class="form-label">Description:</label>
+                <textarea class="form-control" name="description" rows="3">{{ wanted.description }}</textarea>
+            </div>
+
+            <div class="form-section">
+                <label for="contact" class="form-label">Contact Number:</label>
+                <input type="text" class="form-control" name="contact" value="{{ wanted.contact }}" required>
+            </div>
+
+            <div class="form-check mt-3">
+                <input class="form-check-input" type="checkbox" name="mark_fulfilled" value="yes" id="markFulfilled">
+                <label class="form-check-label" for="markFulfilled">
+                    Mark this wanted item as fulfilled (will be removed)
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-4">Update Wanted Item</button>
+            <a href="/my_listings" class="btn btn-secondary mt-4">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

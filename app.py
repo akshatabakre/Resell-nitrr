@@ -138,21 +138,60 @@ def protected_area():
 #     return render_template("buy.html", products=products)
 
 
+# @app.route("/buy", methods=["GET", "POST"])
+# @login_is_required
+# def buy():
+#     if request.method == "POST":
+#         buyer_name = request.form["name"]
+#         product_name = request.form["product_name"]
+#         description = request.form.get("description", "")
+#         phone = request.form["contact"]
+
+#         mongo.db.wanted.insert_one({
+#             "name": product_name,
+#             "description": description,
+#             "contact": phone,
+#             "email": session["email"],
+#             "buyer_name": buyer_name,
+#             "status": "pending"
+#         })
+
+#         return render_template("wanted_submitted.html")
+
+#     # GET method — handle search and filtering
+#     search_query = request.args.get("search", "").strip().lower()
+#     category_filter = request.args.get("category", "").strip()
+
+#     query = {"status": "available"}
+
+#     if search_query:
+#         query["name"] = {"$regex": search_query, "$options": "i"}  # case-insensitive
+
+#     if category_filter:
+#         query["category"] = category_filter
+
+#     products = list(mongo.db.products.find(query))
+#     categories = mongo.db.products.distinct("category")  # for dropdown
+
+#     return render_template("buy.html", products=products, categories=categories, selected_category=category_filter, search_query=search_query)
+
+
 @app.route("/buy", methods=["GET", "POST"])
 @login_is_required
 def buy():
     if request.method == "POST":
-        buyer_name = request.form["name"]
-        product_name = request.form["product_name"]
+        product_name = request.form.get("product_name", "")
         description = request.form.get("description", "")
-        phone = request.form["contact"]
+        phone = request.form.get("contact", "")
+
+        if not product_name or not phone:
+            return "Missing required fields", 400
 
         mongo.db.wanted.insert_one({
             "name": product_name,
             "description": description,
             "contact": phone,
             "email": session["email"],
-            "buyer_name": buyer_name,
             "status": "pending"
         })
 
@@ -174,7 +213,6 @@ def buy():
     categories = mongo.db.products.distinct("category")  # for dropdown
 
     return render_template("buy.html", products=products, categories=categories, selected_category=category_filter, search_query=search_query)
-
 
 
 @app.route("/sell", methods=["GET", "POST"])
@@ -244,6 +282,16 @@ def wanted_list():
     wanted_items = list(mongo.db.wanted.find({"status": "approved"}))
     return render_template("wanted_list.html", wanted_items=wanted_items)
 
+# @app.route("/my_listings")
+# @login_is_required
+# def my_listings():
+#     products = list(mongo.db.products.find({
+#         "seller_email": session["email"],
+#         "status": {"$in": ["available", "pending"]}
+#     }))
+#     return render_template("my_listings.html", products=products)
+
+
 @app.route("/my_listings")
 @login_is_required
 def my_listings():
@@ -251,7 +299,12 @@ def my_listings():
         "seller_email": session["email"],
         "status": {"$in": ["available", "pending"]}
     }))
-    return render_template("my_listings.html", products=products)
+    wanted_items = list(mongo.db.wanted.find({
+        "email": session["email"],
+        "status": {"$in": ["approved", "pending"]}
+    }))
+    return render_template("my_listings.html", products=products, wanted_items=wanted_items)
+
 
 @app.route("/my_listings/<product_id>", methods=["GET", "POST"])
 @login_is_required
@@ -309,6 +362,34 @@ def product_detail(product_id):
     if not product:
         abort(404)
     return render_template("product_detail.html", product=product)
+
+@app.route("/edit_wanted/<wanted_id>", methods=["GET", "POST"])
+@login_is_required
+def edit_wanted(wanted_id):
+    wanted = mongo.db.wanted.find_one({"_id": ObjectId(wanted_id), "email": session["email"]})
+    if not wanted:
+        abort(404)
+
+    if request.method == "POST":
+        if request.form.get("mark_fulfilled") == "yes":
+            mongo.db.wanted.delete_one({"_id": ObjectId(wanted_id)})
+            flash("Wanted item marked as fulfilled and removed.")
+            return redirect("/my_listings")
+
+        updated_data = {
+            "name": request.form["name"],
+            "product_name": request.form["product_name"],
+            "description": request.form["description"],
+            "contact": request.form["contact"],
+            "status": "pending"  # Reapproval
+        }
+
+        mongo.db.wanted.update_one({"_id": ObjectId(wanted_id)}, {"$set": updated_data})
+        flash("Wanted item updated and sent for admin approval.")
+        return redirect("/my_listings")
+
+    return render_template("edit_wanted.html", wanted=wanted)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

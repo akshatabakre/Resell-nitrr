@@ -3,9 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>My Listings</title>
+    <style>
+        img {
+            margin: 5px;
+            border: 1px solid #ccc;
+            padding: 3px;
+        }
+        .section-title {
+            background-color: #f0f0f0;
+            padding: 10px;
+            font-size: 1.2em;
+            margin-top: 20px;
+            border-left: 5px solid #007bff;
+        }
+    </style>
 </head>
 <body>
     <h1>My Listings</h1>
+
+    <!-- Product Listings Section -->
+    <div class="section-title">Your Products for Sale</div>
 
     {% if products %}
         <ul>
@@ -36,7 +53,30 @@
             {% endfor %}
         </ul>
     {% else %}
-        <p>You have no active listings.</p>
+        <p>You have no active product listings.</p>
+    {% endif %}
+
+
+    <!-- Wanted Item Listings Section -->
+    <div class="section-title">Your Wanted Items</div>
+
+    {% if wanted_items %}
+        <ul>
+            {% for wanted in wanted_items %}
+                <li>
+                    <h3>{{ wanted.product_name }} ({{ wanted.status }})</h3>
+                    <p><strong>Description:</strong> {{ wanted.description }}</p>
+                    <p><strong>Contact:</strong> {{ wanted.contact }}</p>
+
+                    <p>
+                        <a href="{{ url_for('edit_wanted', wanted_id=wanted._id|string) }}">Edit / Mark Fulfilled</a>
+                    </p>
+                </li>
+                <hr>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have no active wanted items.</p>
     {% endif %}
 
     <p><a href="{{ url_for('protected_area') }}">Back to Dashboard</a></p>
