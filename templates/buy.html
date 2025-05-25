@@ -55,7 +55,7 @@
     <hr class="mt-5">
 
     <!-- 📝 Wanted Item Form -->
-    <div class="mt-4 mb-5">
+    <!-- <div class="mt-4 mb-5">
         <h3 class="mb-3">Didn't find what you’re looking for?</h3>
         <p>List your wanted item and we'll notify sellers!</p>
         <form method="POST" action="/buy">
@@ -77,6 +77,32 @@
             </div>
             <button type="submit" class="btn btn-success">Submit Wanted Item</button>
         </form>
-    </div>
+    </div> -->
+
+    <!-- 📝 Wanted Item Form -->
+<div class="mt-4 mb-5">
+    <h3 class="mb-3">Didn't find what you’re looking for?</h3>
+    <p>List your wanted item and we'll notify sellers!</p>
+    <form method="POST" action="/buy">
+        <div class="mb-3">
+            <label for="yourName" class="form-label">Your Name:</label>
+            <input type="text" id="yourName" name="buyer_name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="wantedName" class="form-label">Product Name:</label>
+            <input type="text" id="product_name" name="product_name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="wantedDesc" class="form-label">Description (optional):</label>
+            <textarea id="description" name="description" rows="3" class="form-control"></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="contact" class="form-label">Your Contact Number:</label>
+            <input type="tel" id="contact" name="contact" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-success">Submit Wanted Item</button>
+    </form>
+</div>
+
 </div>
 {% endblock %}
