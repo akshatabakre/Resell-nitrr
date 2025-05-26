@@ -180,6 +180,7 @@ def protected_area():
 @login_is_required
 def buy():
     if request.method == "POST":
+        buyer_name = request.form.get("buyer_name")
         product_name = request.form.get("product_name", "")
         description = request.form.get("description", "")
         phone = request.form.get("contact", "")
@@ -188,6 +189,7 @@ def buy():
             return "Missing required fields", 400
 
         mongo.db.wanted.insert_one({
+            "buyer_name":buyer_name,
             "name": product_name,
             "description": description,
             "contact": phone,
