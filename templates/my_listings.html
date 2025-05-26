@@ -43,7 +43,7 @@
                     {% endif %}
 
                     <p>
-                        <a href="{{ url_for('edit_listing', product_id=product._id|string) }}">Edit</a> |
+                        <a href="{{ url_for('edit_listing', product_id=product._id|string) }}">Edit</a>
                         <form action="{{ url_for('mark_sold', product_id=product._id|string) }}" method="post" style="display:inline;">
                             <button type="submit" onclick="return confirm('Are you sure you want to mark this item as sold?')">Mark as Sold</button>
                         </form>
@@ -64,7 +64,7 @@
         <ul>
             {% for wanted in wanted_items %}
                 <li>
-                    <h3>{{ wanted.product_name }} ({{ wanted.status }})</h3>
+                    <h3>{{ wanted.name }} ({{ wanted.status }})</h3>
                     <p><strong>Description:</strong> {{ wanted.description }}</p>
                     <p><strong>Contact:</strong> {{ wanted.contact }}</p>
 
