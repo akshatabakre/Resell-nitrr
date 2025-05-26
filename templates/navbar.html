@@ -1,0 +1,41 @@
+<!-- templates/navbar.html -->
+
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color:rgb(185, 2, 5); position: sticky; top: 0; z-index: 1030;">
+
+    <a class="navbar-brand ms-3 fw-bold" href="{{ url_for('protected_area') }}">CollegeResell</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav" aria-controls="navbarNav"
+            aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto me-3">
+            {% if session.get('google_id') %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('protected_area') }}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('buy') }}">Buy</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('sell') }}">Sell</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('wanted_list') }}">Wanted</a>
+                </li>
+                {% if session['email'] == "akshatcc2@gmail.com" %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin') }}">Admin</a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link text-warning" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>

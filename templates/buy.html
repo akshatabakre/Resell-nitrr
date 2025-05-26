@@ -1,6 +1,50 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Buy Products</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS (via CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-{% block content %}
+    <style>
+        body{
+            background: url('/static/buyBG.jpg') no-repeat center center fixed;
+            content: "";
+            /* position: fixed; */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* background: url('/static/dsbg.jpg') no-repeat center center fixed; */
+            background-size: cover;
+            filter: brightness(0.9);
+            z-index: -2;
+            color: white;
+            /* padding-top: 70px; */
+            padding-bottom: 0;
+        }
+        body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        height: 100%;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.4); /* Adjust opacity here */
+        z-index: -1;
+    }
+    .container mt-4{
+        
+    }
+    </style>
+</head>
+<body>
+
+{% include 'navbar.html' %}
+
+
 <div class="container mt-4">
     <h2 class="mb-4">Available Products</h2>
 
@@ -55,21 +99,21 @@
     <hr class="mt-5">
 
     <!-- 📝 Wanted Item Form -->
-    <!-- <div class="mt-4 mb-5">
+    <div class="mt-4 mb-5">
         <h3 class="mb-3">Didn't find what you’re looking for?</h3>
         <p>List your wanted item and we'll notify sellers!</p>
         <form method="POST" action="/buy">
             <div class="mb-3">
                 <label for="yourName" class="form-label">Your Name:</label>
-                <input type="text" id="yourName" name="name" class="form-control" required>
+                <input type="text" id="buyer_name" name="buyer_name" class="form-control" required>
             </div>
             <div class="mb-3">
                 <label for="wantedName" class="form-label">Product Name:</label>
-                <input type="text" id="wantedName" name="product_name" class="form-control" required>
+                <input type="text" id="product_name" name="product_name" class="form-control" required>
             </div>
             <div class="mb-3">
                 <label for="wantedDesc" class="form-label">Description (optional):</label>
-                <textarea id="wantedDesc" name="description" rows="3" class="form-control"></textarea>
+                <textarea id="description" name="description" rows="3" class="form-control"></textarea>
             </div>
             <div class="mb-3">
                 <label for="contact" class="form-label">Your Contact Number:</label>
@@ -77,32 +121,12 @@
             </div>
             <button type="submit" class="btn btn-success">Submit Wanted Item</button>
         </form>
-    </div> -->
-
-    <!-- 📝 Wanted Item Form -->
-<div class="mt-4 mb-5">
-    <h3 class="mb-3">Didn't find what you’re looking for?</h3>
-    <p>List your wanted item and we'll notify sellers!</p>
-    <form method="POST" action="/buy">
-        <div class="mb-3">
-            <label for="yourName" class="form-label">Your Name:</label>
-            <input type="text" id="buyer_name" name="buyer_name" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label for="wantedName" class="form-label">Product Name:</label>
-            <input type="text" id="product_name" name="product_name" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label for="wantedDesc" class="form-label">Description (optional):</label>
-            <textarea id="description" name="description" rows="3" class="form-control"></textarea>
-        </div>
-        <div class="mb-3">
-            <label for="contact" class="form-label">Your Contact Number:</label>
-            <input type="tel" id="contact" name="contact" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-success">Submit Wanted Item</button>
-    </form>
-</div>
+    </div>
 
 </div>
-{% endblock %}
+
+<!-- Bootstrap JS (via CDN, optional) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
