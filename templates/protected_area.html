@@ -1,17 +1,171 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Protected Area</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-{% block content %}
-<h2>Welcome, {{ name }}!</h2>
-<p>Email: {{ email }}</p>
+  <!-- Google Fonts + Bootstrap -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
-{% if is_admin %}
-<a href="/admin" class="btn btn-warning mb-2">Admin Panel</a><br>
-{% endif %}
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+    }
 
-<a href="/buy" class="btn btn-success">Buy</a>
-<a href="/sell" class="btn btn-info">Sell</a>
-<a href="/wanted_list" class="btn btn-secondary">View Wanted Items</a>
-<a href="/my_listings" class="btn btn-primary">Edit Your Listings</a>
-<br><br>
-<a href="/logout" class="btn btn-danger">Logout</a>
-{% endblock %}
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('/static/dsbg.jpg') no-repeat center center fixed;
+      background-size: cover;
+      filter: brightness(0.9);
+      z-index: -2;
+    }
+
+    .header-bar {
+      width: 100%;
+      padding: 20px 60px;
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .site-title {
+      font-family: 'Pacifico', cursive;
+      font-size: 32px;
+      color: #2c3e50;
+      margin: 0;
+    }
+
+    .site-tagline {
+      font-size: 14px;
+      color: #555;
+      margin-left: 20px;
+      font-style: italic;
+    }
+
+    .bg-container {
+      height: calc(100% - 80px); /* Adjust for header */
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding-right: 11.5vw;
+    }
+
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 50px 40px;
+      width: 400px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease;
+    }
+
+    .glass-panel:hover {
+      transform: scale(1.02);
+    }
+
+    .glass-panel h2 {
+      font-weight: 600;
+      color: #222;
+      margin-bottom: 10px;
+    }
+
+    .glass-panel p {
+      font-size: 15px;
+      color: #444;
+      margin-bottom: 30px;
+    }
+
+    .btn-custom {
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      opacity: 0.95;
+    }
+
+    .btn-admin { background-color: #ffc107; color: #000; }
+    .btn-buy   { background-color: #28a745; color: #fff; }
+    .btn-sell  { background-color: #17a2b8; color: #fff; }
+    .btn-wanted { background-color: #6c757d; color: #fff; }
+    .btn-edit  { background-color: #007bff; color: #fff; }
+    .btn-logout { background-color: #dc3545; color: #fff; }
+
+    @media (max-width: 768px) {
+      .header-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px 20px;
+      }
+
+      .site-tagline {
+        margin-left: 0;
+        margin-top: 5px;
+      }
+
+      .bg-container {
+        justify-content: center;
+        padding: 20px;
+        height: auto;
+        margin-top: 20px;
+      }
+
+      .glass-panel {
+        width: 90%;
+        padding: 35px 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Website Header -->
+  <div class="header-bar">
+    <h1 class="site-title">College Resell Hub</h1>
+    <span class="site-tagline">Buy · Sell · Share — All in One Place</span>
+  </div>
+
+  <!-- Main Panel -->
+  <div class="bg-container">
+    <div class="glass-panel text-center">
+      <h2>Welcome, {{ name }}!</h2>
+      <p>Email: {{ email }}</p>
+
+      {% if is_admin %}
+      <a href="/admin" class="btn btn-custom btn-admin">Admin Panel</a>
+      {% endif %}
+
+      <a href="/buy" class="btn btn-custom btn-buy">Buy</a>
+      <a href="/sell" class="btn btn-custom btn-sell">Sell</a>
+      <a href="/wanted_list" class="btn btn-custom btn-wanted">View Wanted Items</a>
+      <a href="/my_listings" class="btn btn-custom btn-edit">Edit Your Listings</a>
+      <a href="/logout" class="btn btn-custom btn-logout">Logout</a>
+    </div>
+  </div>
+
+</body>
+</html>
