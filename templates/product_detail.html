@@ -32,6 +32,9 @@
       display: flex;
       flex-direction: column;
       gap: 15px;
+      max-height: 500px;
+      overflow-y: auto;
+      /* width: 60%; */
     }
 
     .gallery img {
@@ -52,15 +55,18 @@
     .main-image {
       flex: 1 1 45%;
       position: relative;
+      height: 500px;
     }
 
     .carousel {
       position: relative;
-      overflow: hidden;
+      height: 100%;
     }
 
     .carousel img {
       width: 100%;
+      height: 100%;
+      object-fit: cover;
       border-radius: 12px;
       border: 2px solid #ccc;
       animation: fadeIn 0.5s ease-in;
@@ -70,14 +76,18 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background-color: rgba(0, 0, 0, 0.4);
-      color: white;
       font-size: 2rem;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.5);
       padding: 10px;
-      cursor: pointer;
       border-radius: 50%;
-      z-index: 10;
-      user-select: none;
+      cursor: pointer;
+      z-index: 1;
+      display: none;
+    }
+
+    .carousel:hover .arrow {
+      display: block;
     }
 
     .arrow.left {
@@ -107,7 +117,7 @@
     .price {
       font-size: 2rem;
       font-weight: bold;
-      color: #007bff; /* Changed to blue */
+      color: #007bff; /* Blue color */
       margin-bottom: 20px;
     }
 
@@ -129,13 +139,6 @@
       text-decoration: none;
       transition: transform 0.3s ease, background 0.3s ease;
       animation: pulse 1.5s infinite;
-    }
-
-    .whatsapp svg {
-      width: 20px;
-      height: 20px;
-      fill: white;
-      vertical-align: middle;
     }
 
     .whatsapp:hover {
@@ -192,6 +195,7 @@
       .gallery {
         flex-direction: row;
         overflow-x: auto;
+        max-height: none;
       }
 
       .gallery img {
@@ -208,13 +212,13 @@
     <!-- Side Gallery -->
     <div class="gallery">
       {% for url in product.image_urls %}
-      <img src="{{ url }}" alt="Thumbnail" onclick="showImage('{{ url }}')" />
+      <img src="{{ url }}" alt="Thumbnail" onclick="showImageModal('{{ url }}')" />
       {% endfor %}
     </div>
 
     <!-- Main Image Carousel -->
     <div class="main-image">
-      <div class="carousel">
+      <div class="carousel" id="carousel">
         <span class="arrow left" onclick="prevImage()">&#10094;</span>
         <img id="carouselImage" src="{{ product.image_urls[0] }}" alt="Main Product Image">
         <span class="arrow right" onclick="nextImage()">&#10095;</span>
@@ -251,6 +255,30 @@
     const images = {{ product.image_urls | tojson }};
     let currentIndex = 0;
     const carouselImage = document.getElementById("carouselImage");
+    const carousel = document.getElementById("carousel");
+    let interval;
+
+    function updateImage() {
+      carouselImage.src = images[currentIndex];
+    }
+
+    function nextImage() {
+      currentIndex = (currentIndex + 1) % images.length;
+      updateImage();
+    }
+
+    function prevImage() {
+      currentIndex = (currentIndex - 1 + images.length) % images.length;
+      updateImage();
+    }
+
+    function startAutoSlide() {
+      interval = setInterval(nextImage, 3000);
+    }
+
+    function stopAutoSlide() {
+      clearInterval(interval);
+    }
 
     function showImageModal(url) {
       document.getElementById("modalImg").src = url;
@@ -261,26 +289,14 @@
       document.getElementById("imgModal").classList.remove("active");
     }
 
-    function showImage(url) {
-      showImageModal(url);
-    }
+    // Start sliding
+    startAutoSlide();
 
-    function nextImage() {
-      currentIndex = (currentIndex + 1) % images.length;
-      carouselImage.src = images[currentIndex];
-    }
+    // Pause on hover
+    carousel.addEventListener("mouseenter", stopAutoSlide);
+    carousel.addEventListener("mouseleave", startAutoSlide);
 
-    function prevImage() {
-      currentIndex = (currentIndex - 1 + images.length) % images.length;
-      carouselImage.src = images[currentIndex];
-    }
-
-    // Auto swipe every 3 seconds
-    setInterval(() => {
-      nextImage();
-    }, 3000);
-
-    // ESC key closes modal
+    // ESC closes modal
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape") closeModal();
     });
