@@ -34,16 +34,17 @@
       gap: 15px;
     }
 
-    .gallery img {
+    .gallery a img {
       width: 100%;
       border-radius: 10px;
       object-fit: cover;
       border: 2px solid #ddd;
-      transition: transform 0.2s ease;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .gallery img:hover {
+    .gallery a img:hover {
       transform: scale(1.05);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
       border-color: #0f62fe;
     }
 
@@ -55,6 +56,12 @@
       width: 100%;
       border-radius: 12px;
       border: 2px solid #ccc;
+      animation: fadeIn 0.6s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .details {
@@ -65,47 +72,24 @@
       box-shadow: 0 0 20px rgba(0,0,0,0.05);
       position: sticky;
       top: 30px;
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
 
     .details h1 {
       font-size: 1.75rem;
-      margin-bottom: 10px;
-    }
-
-    .rating {
-      color: #f0b400;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
     }
 
     .price {
       font-size: 2rem;
       font-weight: bold;
-      color: #d32f2f;
-      margin-top: 10px;
-    }
-
-    .original-price {
-      font-size: 1rem;
-      color: #777;
-      text-decoration: line-through;
-      margin-left: 10px;
-    }
-
-    .deal-timer {
-      background: #d32f2f;
-      color: white;
-      font-weight: bold;
-      padding: 8px 12px;
-      border-radius: 6px;
-      display: inline-block;
-      margin: 12px 0;
-      animation: pulse 1s infinite;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.05); opacity: 0.8; }
-      100% { transform: scale(1); opacity: 1; }
+      color: #2e7d32;
+      margin-bottom: 20px;
     }
 
     .meta p {
@@ -122,6 +106,7 @@
       font-weight: bold;
       border-radius: 8px;
       text-decoration: none;
+      transition: background 0.3s ease;
     }
 
     .whatsapp:hover {
@@ -142,7 +127,7 @@
         overflow-x: auto;
       }
 
-      .gallery img {
+      .gallery a img {
         width: 100px;
         height: 100px;
         flex-shrink: 0;
@@ -155,7 +140,9 @@
     <!-- Side Gallery -->
     <div class="gallery">
       {% for url in product.image_urls %}
-      <img src="{{ url }}" alt="Product Thumbnail" />
+      <a href="{{ url }}" target="_blank">
+        <img src="{{ url }}" alt="Product Thumbnail" />
+      </a>
       {% endfor %}
     </div>
 
@@ -167,12 +154,7 @@
     <!-- Product Info -->
     <div class="details">
       <h1>{{ product.name }}</h1>
-      <div class="rating">★ 4.5 (84 reviews)</div>
-      <div class="deal-timer">🔥 Deal ends in 9:23:41</div>
-      <div class="price">
-        ₹{{ product.price }}
-        <span class="original-price">₹{{ product.price + 5000 }}</span>
-      </div>
+      <div class="price">₹{{ product.price }}</div>
 
       <div class="meta">
         <p><strong>Category:</strong> {{ product.category }}</p>
