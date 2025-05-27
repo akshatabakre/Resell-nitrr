@@ -16,7 +16,6 @@
       font-family: 'Inter', sans-serif;
       background: #f5f5f5;
       color: #111;
-      padding: 30px;
     }
 
     .container {
@@ -25,6 +24,7 @@
       gap: 40px;
       max-width: 1200px;
       margin: auto;
+      padding-top: 35px;
     }
 
     .gallery {
@@ -34,15 +34,16 @@
       gap: 15px;
     }
 
-    .gallery a img {
+    .gallery img {
       width: 100%;
       border-radius: 10px;
       object-fit: cover;
       border: 2px solid #ddd;
+      cursor: pointer;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .gallery a img:hover {
+    .gallery img:hover {
       transform: scale(1.05);
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
       border-color: #0f62fe;
@@ -50,18 +51,41 @@
 
     .main-image {
       flex: 1 1 45%;
+      position: relative;
     }
 
-    .main-image img {
+    .carousel {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .carousel img {
       width: 100%;
       border-radius: 12px;
       border: 2px solid #ccc;
-      animation: fadeIn 0.6s ease-in;
+      animation: fadeIn 0.5s ease-in;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: rgba(0, 0, 0, 0.4);
+      color: white;
+      font-size: 2rem;
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 50%;
+      z-index: 10;
+      user-select: none;
+    }
+
+    .arrow.left {
+      left: 10px;
+    }
+
+    .arrow.right {
+      right: 10px;
     }
 
     .details {
@@ -75,11 +99,6 @@
       animation: slideUp 0.5s ease-out;
     }
 
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
     .details h1 {
       font-size: 1.75rem;
       margin-bottom: 15px;
@@ -88,7 +107,7 @@
     .price {
       font-size: 2rem;
       font-weight: bold;
-      color: #2e7d32;
+      color: #007bff; /* Changed to blue */
       margin-bottom: 20px;
     }
 
@@ -98,19 +117,67 @@
 
     .whatsapp {
       margin-top: 20px;
-      display: block;
-      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px;
       background: #25d366;
       color: white;
-      text-align: center;
       font-weight: bold;
       border-radius: 8px;
       text-decoration: none;
-      transition: background 0.3s ease;
+      transition: transform 0.3s ease, background 0.3s ease;
+      animation: pulse 1.5s infinite;
+    }
+
+    .whatsapp svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
+      vertical-align: middle;
     }
 
     .whatsapp:hover {
       background: #1da851;
+      transform: scale(1.05);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0; top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+    }
+
+    .modal.active {
+      display: flex;
     }
 
     @media (max-width: 992px) {
@@ -127,7 +194,7 @@
         overflow-x: auto;
       }
 
-      .gallery a img {
+      .gallery img {
         width: 100px;
         height: 100px;
         flex-shrink: 0;
@@ -136,19 +203,22 @@
   </style>
 </head>
 <body>
+  {% include 'navbar.html' %}
   <div class="container">
     <!-- Side Gallery -->
     <div class="gallery">
       {% for url in product.image_urls %}
-      <a href="{{ url }}" target="_blank">
-        <img src="{{ url }}" alt="Product Thumbnail" />
-      </a>
+      <img src="{{ url }}" alt="Thumbnail" onclick="showImage('{{ url }}')" />
       {% endfor %}
     </div>
 
-    <!-- Main Image -->
+    <!-- Main Image Carousel -->
     <div class="main-image">
-      <img src="{{ product.image_urls[0] }}" alt="Main Product Image">
+      <div class="carousel">
+        <span class="arrow left" onclick="prevImage()">&#10094;</span>
+        <img id="carouselImage" src="{{ product.image_urls[0] }}" alt="Main Product Image">
+        <span class="arrow right" onclick="nextImage()">&#10095;</span>
+      </div>
     </div>
 
     <!-- Product Info -->
@@ -163,10 +233,57 @@
         <p><strong>Contact:</strong> {{ product.phone }}</p>
       </div>
 
-      <a class="whatsapp" href="https://wa.me/{{ product.phone | replace('+91', '') }}?text=Hi%20{{ product.seller_name }},%20I%20am%20interested%20in%20your%20product%20{{ product.name }}">
+      <a class="whatsapp" href="https://wa.me/{{ product.phone | replace('+91', '') }}?text=Hi%20{{ product.seller_name }},%20I%20am%20interested%20in%20your%20product%20{{ product.name }}" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="22" height="22" fill="white">
+          <path d="M16 .396C7.177.396 0 7.57 0 16.396c0 2.891.75 5.723 2.175 8.213L.162 31.603l7.182-1.885c2.41 1.32 5.12 2.014 7.926 2.014 8.823 0 16-7.172 16-16.396C31.27 7.57 24.093.396 16 .396zm0 29.323c-2.445 0-4.822-.654-6.885-1.896l-.495-.294-4.267 1.122 1.14-4.159-.308-.513C3.63 21.938 3.04 19.187 3.04 16.396c0-7.156 5.82-12.975 12.96-12.975s12.96 5.819 12.96 12.975-5.82 12.975-12.96 12.975zm7.4-9.368c-.408-.204-2.407-1.188-2.78-1.32-.375-.14-.65-.204-.925.204s-1.062 1.32-1.302 1.593c-.24.272-.48.306-.888.102-.408-.204-1.722-.635-3.28-2.027-1.213-1.084-2.032-2.42-2.272-2.829-.24-.408-.027-.627.18-.83.184-.182.408-.476.612-.714.204-.24.272-.408.408-.68.136-.272.068-.51-.034-.714-.102-.204-.925-2.226-1.268-3.048-.334-.816-.676-.704-.925-.714l-.782-.014c-.272 0-.714.102-1.086.51s-1.422 1.388-1.422 3.385 1.456 3.927 1.657 4.199c.204.272 2.87 4.38 6.96 6.14.973.42 1.73.672 2.32.857.975.312 1.86.27 2.56.164.78-.117 2.407-.984 2.747-1.935.34-.95.34-1.766.24-1.935-.102-.17-.374-.272-.782-.476z"/>
+        </svg>
         Chat with Seller on WhatsApp
       </a>
     </div>
   </div>
+
+  <!-- Modal for Zoomed Image -->
+  <div id="imgModal" class="modal" onclick="closeModal()">
+    <img id="modalImg" src="" alt="Zoomed Preview" />
+  </div>
+
+  <script>
+    const images = {{ product.image_urls | tojson }};
+    let currentIndex = 0;
+    const carouselImage = document.getElementById("carouselImage");
+
+    function showImageModal(url) {
+      document.getElementById("modalImg").src = url;
+      document.getElementById("imgModal").classList.add("active");
+    }
+
+    function closeModal() {
+      document.getElementById("imgModal").classList.remove("active");
+    }
+
+    function showImage(url) {
+      showImageModal(url);
+    }
+
+    function nextImage() {
+      currentIndex = (currentIndex + 1) % images.length;
+      carouselImage.src = images[currentIndex];
+    }
+
+    function prevImage() {
+      currentIndex = (currentIndex - 1 + images.length) % images.length;
+      carouselImage.src = images[currentIndex];
+    }
+
+    // Auto swipe every 3 seconds
+    setInterval(() => {
+      nextImage();
+    }, 3000);
+
+    // ESC key closes modal
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+    });
+  </script>
 </body>
 </html>
