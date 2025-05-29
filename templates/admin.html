@@ -1,43 +1,189 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel - Pending Approvals</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-{% block content %}
-<h2>Pending Products</h2>
-<ul>
-    {% for product in pending_products %}
-    <li>
-        <b>{{ product.name }}</b> - ₹{{ product.price }}<br>{{ product.description }}<br>
-        Seller: {{ product.seller_name }} | {{ product.phone }}<br>
-        {% for url in product.image_urls %}
-            <img src="{{ url }}" width="150"><br>
-        {% endfor %}
-        <form method="post">
-            <input type="hidden" name="item_id" value="{{ product._id }}">
-            <input type="hidden" name="type" value="product">
-            <button name="action" value="approve" class="btn btn-success">Approve</button>
-            <button name="action" value="reject" class="btn btn-danger">Reject</button>
-        </form>
-    </li>
-    <br>
-    {% endfor %}
-</ul>
+  <!-- Bootstrap & FontAwesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
-<hr>
-<h2>Pending Wanted Items</h2>
-<ul>
-    {% for item in pending_wanted %}
-    <li>
-        <b>{{ item.name }}</b><br>{{ item.description }}<br>
-        Buyer: {{ item.buyer_name }} | Contact: {{ item.contact }}<br>
-        <form method="post">
-            <input type="hidden" name="item_id" value="{{ item._id }}">
-            <input type="hidden" name="type" value="wanted">
-            <button name="action" value="approve" class="btn btn-success">Approve</button>
-            <button name="action" value="reject" class="btn btn-danger">Reject</button>
-        </form>
-    </li>
-    <br>
-    {% endfor %}
-</ul>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top left, #d3e0ff, #f0f4ff, #ffffff);
+      padding: 40px 20px;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-<a href="/protected_area" class="btn btn-secondary">Back</a>
-{% endblock %}
+    h2 {
+      font-weight: 800;
+      color: #0c4be4;
+      text-shadow: 2px 2px 4px #b0c4ff;
+      margin-bottom: 40px;
+      animation: slideIn 0.8s ease-in-out;
+    }
+
+    .card {
+      border: none;
+      border-radius: 20px;
+      background: #ffffff;
+      box-shadow: 10px 10px 25px rgba(0, 0, 0, 0.08),
+                  -5px -5px 15px rgba(255, 255, 255, 0.8);
+      transition: all 0.3s ease-in-out;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-10px) scale(1.02) rotateX(1deg);
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.12);
+    }
+
+    .card img {
+      border-radius: 12px;
+      max-height: 200px;
+      object-fit: cover;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .btn-approve,
+    .btn-reject {
+      border: none;
+      font-weight: 600;
+      padding: 12px 25px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .btn-approve {
+      background: linear-gradient(135deg, #00b894, #00cec9);
+      color: #fff;
+    }
+
+    .btn-approve:hover {
+      background: linear-gradient(135deg, #00cec9, #00b894);
+      transform: scale(1.05);
+    }
+
+    .btn-reject {
+      background: linear-gradient(135deg, #d63031, #e17055);
+      color: #fff;
+    }
+
+    .btn-reject:hover {
+      background: linear-gradient(135deg, #e17055, #d63031);
+      transform: scale(1.05);
+    }
+
+    .back-button {
+      background: #576574;
+      color: #fff;
+      padding: 12px 30px;
+      border-radius: 50px;
+      font-weight: bold;
+      transition: 0.3s ease;
+      text-decoration: none;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .back-button:hover {
+      background: #2d3436;
+      transform: translateY(-2px);
+      color: #fff;
+    }
+
+    .fade-in {
+      animation: fadeInUp 0.8s ease both;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideIn {
+      0% {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2 class="text-center"><i class="fas fa-tasks me-2"></i>Pending Products</h2>
+    <div class="row">
+      {% for product in pending_products %}
+      <div class="col-md-6 fade-in mb-4">
+        <div class="card p-4">
+          <div class="card-body">
+            <h5 class="card-title">{{ product.name }} - ₹{{ product.price }}</h5>
+            <p class="card-text">{{ product.description }}</p>
+            <p><strong>Seller:</strong> {{ product.seller_name }} | {{ product.phone }}</p>
+            {% if product.image_urls %}
+            <div class="mb-3">
+              {% for url in product.image_urls %}
+              <img src="{{ url }}" alt="Product Image" class="img-fluid mb-2">
+              {% endfor %}
+            </div>
+            {% endif %}
+            <form method="post" class="d-flex justify-content-between">
+              <input type="hidden" name="item_id" value="{{ product._id }}">
+              <input type="hidden" name="type" value="product">
+              <button name="action" value="approve" class="btn btn-approve"><i class="fas fa-check-circle me-2"></i>Approve</button>
+              <button name="action" value="reject" class="btn btn-reject"><i class="fas fa-times-circle me-2"></i>Reject</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <hr class="my-5">
+
+    <h2 class="text-center"><i class="fas fa-user-clock me-2"></i>Pending Wanted Items</h2>
+    <div class="row">
+      {% for item in pending_wanted %}
+      <div class="col-md-6 fade-in mb-4">
+        <div class="card p-4">
+          <div class="card-body">
+            <h5 class="card-title">{{ item.name }}</h5>
+            <p class="card-text">{{ item.description }}</p>
+            <p><strong>Buyer:</strong> {{ item.buyer_name }} | Contact: {{ item.contact }}</p>
+            <form method="post" class="d-flex justify-content-between">
+              <input type="hidden" name="item_id" value="{{ item._id }}">
+              <input type="hidden" name="type" value="wanted">
+              <button name="action" value="approve" class="btn btn-approve"><i class="fas fa-check-circle me-2"></i>Approve</button>
+              <button name="action" value="reject" class="btn btn-reject"><i class="fas fa-times-circle me-2"></i>Reject</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-5">
+      <a href="/protected_area" class="back-button"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
