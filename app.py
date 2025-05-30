@@ -57,7 +57,7 @@ def login_is_required(function):
     wrapper.__name__ = function.__name__
     return wrapper
 
-ADMIN_EMAIL = "akshatcc2@gmail.com"
+ADMIN_EMAIL = os.getenv("ADMIN")
 
 @app.route("/")
 def index():
@@ -113,68 +113,6 @@ def logout():
 @login_is_required
 def protected_area():
     return render_template("protected_area.html", name=session['name'], email=session['email'], is_admin=session.get("is_admin"))
-
-# @app.route("/buy", methods=["GET", "POST"])
-# @login_is_required
-# def buy():
-#     if request.method == "POST":
-#         buyer_name = request.form["name"]  # name = from input field in HTML
-#         product_name = request.form["product_name"]
-#         description = request.form.get("description", "")
-#         phone = request.form["contact"]
-
-#         mongo.db.wanted.insert_one({
-#             "name": product_name,
-#             "description": description,
-#             "contact": phone,
-#             "email": session["email"],
-#             "buyer_name": buyer_name,
-#             "status": "pending"
-#         })
-
-#         return render_template("wanted_submitted.html")
-
-#     products = list(mongo.db.products.find({"status": "available"}))
-#     return render_template("buy.html", products=products)
-
-
-# @app.route("/buy", methods=["GET", "POST"])
-# @login_is_required
-# def buy():
-#     if request.method == "POST":
-#         buyer_name = request.form["name"]
-#         product_name = request.form["product_name"]
-#         description = request.form.get("description", "")
-#         phone = request.form["contact"]
-
-#         mongo.db.wanted.insert_one({
-#             "name": product_name,
-#             "description": description,
-#             "contact": phone,
-#             "email": session["email"],
-#             "buyer_name": buyer_name,
-#             "status": "pending"
-#         })
-
-#         return render_template("wanted_submitted.html")
-
-#     # GET method — handle search and filtering
-#     search_query = request.args.get("search", "").strip().lower()
-#     category_filter = request.args.get("category", "").strip()
-
-#     query = {"status": "available"}
-
-#     if search_query:
-#         query["name"] = {"$regex": search_query, "$options": "i"}  # case-insensitive
-
-#     if category_filter:
-#         query["category"] = category_filter
-
-#     products = list(mongo.db.products.find(query))
-#     categories = mongo.db.products.distinct("category")  # for dropdown
-
-#     return render_template("buy.html", products=products, categories=categories, selected_category=category_filter, search_query=search_query)
-
 
 @app.route("/buy", methods=["GET", "POST"])
 @login_is_required
