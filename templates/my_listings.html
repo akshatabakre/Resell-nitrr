@@ -2,241 +2,177 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Listings - CollegeResell</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Listings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(to right, #f0f4ff, #e6f0ff);
+            background: linear-gradient(to bottom right, #dfeeff, #f0f4ff);
+            padding: 20px;
             font-family: 'Segoe UI', sans-serif;
         }
 
-        .container {
-            padding-top: 50px;
-        }
-
-        h1 {
-            font-weight: 800;
-            text-align: center;
-            color: #084298;
-            margin-bottom: 40px;
+        h2 {
+            font-weight: bold;
+            color: #0d47a1;
+            margin-bottom: 25px;
         }
 
         .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #333;
-            border-left: 5px solid #0C63E4;
-            padding-left: 15px;
-            margin-bottom: 25px;
-            animation: slideInLeft 1s ease-out;
-        }
-
-        @keyframes slideInLeft {
-            from {
-                transform: translateX(-50%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .card-listing {
-            background: #fff;
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: hidden;
-            margin-bottom: 30px;
-        }
-
-        .card-listing:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .product-img {
-            max-height: 180px;
-            object-fit: cover;
-            border-radius: 10px;
-        }
-
-        .card-body h5 {
-            font-weight: 700;
-            color: #084298;
-        }
-
-        .card-body p {
-            margin-bottom: 5px;
-        }
-
-        .btn-action {
-            border-radius: 30px;
-            transition: all 0.3s ease-in-out;
-        }
-
-        .btn-action:hover {
-            transform: scale(1.05);
-        }
-
-        .no-data {
-            font-size: 1.2rem;
-            color: #666;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .dashboard-btn {
-            display: inline-block;
-            margin: 40px auto 0;
-            text-align: center;
-        }
-
-        .dashboard-btn a {
-            padding: 12px 25px;
-            border-radius: 50px;
-            background: linear-gradient(to right, #0C63E4, #084298);
-            color: white;
-            font-weight: bold;
-            text-decoration: none;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            transition: background 0.3s ease;
-        }
-
-        .dashboard-btn a:hover {
-            background: linear-gradient(to right, #084298, #0C63E4);
-        }
-
-        .image-gallery {
+            font-size: 20px;
+            margin-bottom: 10px;
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
         }
 
-        .image-gallery img {
-            width: 120px;
-            height: 100px;
-            border-radius: 8px;
-            border: 2px solid #eee;
+        .product-card, .wanted-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 15px;
+            margin-bottom: 20px;
+            width: 100%;
             transition: transform 0.2s ease;
         }
 
-        .image-gallery img:hover {
-            transform: scale(1.05);
+        .product-card:hover, .wanted-card:hover {
+            transform: scale(1.01);
         }
 
-        /* Responsive styling */
-        @media (max-width: 768px) {
-            .image-gallery img {
-                width: 100px;
-                height: 80px;
+        .status-badge {
+            font-size: 12px;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .available {
+            background-color: #e0f7fa;
+            color: #00796b;
+        }
+
+        .approved {
+            background-color: #ffe082;
+            color: #bf360c;
+        }
+
+        .card-img-preview {
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin: 3px;
+            cursor: pointer;
+        }
+
+        .card-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .btn-sm {
+            font-size: 14px;
+        }
+
+        .dashboard-btn {
+            background-color: #0d47a1;
+            color: white;
+            padding: 10px 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .dashboard-btn:hover {
+            background-color: #08306b;
+        }
+
+        @media (min-width: 768px) {
+            .listing-section {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
             }
 
-            .section-title {
-                font-size: 1.25rem;
-            }
-
-            h1 {
-                font-size: 1.8rem;
-            }
-
-            .dashboard-btn a {
-                font-size: 0.9rem;
-                padding: 10px 20px;
+            .product-card {
+                width: 48%;
             }
         }
 
-        @media (max-width: 480px) {
-            .image-gallery img {
-                width: 90px;
-                height: 70px;
+        @media (max-width: 767px) {
+            .product-card, .wanted-card {
+                width: 100%;
             }
 
-            .card-body h5 {
-                font-size: 1rem;
-            }
-
-            .card-body p {
-                font-size: 0.9rem;
+            .listing-section {
+                display: block;
             }
         }
     </style>
 </head>
 <body>
-    {% include 'loader.html' %}
+
     <div class="container">
-        <h1><i class="fas fa-box-open"></i> My Listings</h1>
+        <h2 class="text-center"><i class="bi bi-box-seam"></i> My Listings</h2>
 
         <!-- Product Listings -->
-        <div class="section-title"><i class="fas fa-tags"></i> Your Products for Sale</div>
-        {% if products %}
-            <div class="row">
-                {% for product in products %}
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="card card-listing">
-                            <div class="card-body">
-                                <h5>{{ product.name }} <span class="badge bg-secondary">{{ product.status }}</span></h5>
-                                <p><strong>Category:</strong> {{ product.category }}</p>
-                                <p><strong>Description:</strong> {{ product.description }}</p>
-                                <p><strong>Price:</strong> ₹{{ product.price }}</p>
-                                <p><strong>Contact:</strong> {{ product.phone }}</p>
-                                {% if product.image_urls %}
-                                    <div class="image-gallery">
-                                        {% for img in product.image_urls %}
-                                            <img src="{{ img }}" alt="Product Image">
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                                <div class="mt-3 d-flex justify-content-between">
-                                    <a href="{{ url_for('edit_listing', product_id=product._id|string) }}" class="btn btn-primary btn-sm btn-action">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                    <form action="{{ url_for('mark_sold', product_id=product._id|string) }}" method="post" style="display:inline;">
-                                        <button type="submit" class="btn btn-success btn-sm btn-action" onclick="return confirm('Are you sure you want to mark this item as sold?')">
-                                            <i class="fas fa-check-circle"></i> Mark as Sold
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p class="no-data">You have no active product listings.</p>
-        {% endif %}
+        <div class="section-title"><i class="bi bi-tag-fill"></i> Your Products for Sale</div>
+        <div class="listing-section">
+            {% for product in products %}
+            <div class="product-card">
+                <span class="status-badge available">{{ product.status }}</span>
+                <p><strong>Title:</strong> {{ product.name }}</p>
+                <p><strong>Category:</strong> {{ product.category }}</p>
+                <p><strong>Description:</strong> {{ product.description }}</p>
+                <p><strong>Price:</strong> ₹{{ product.price }}</p>
+                <p><strong>Contact:</strong> {{ product.contact }}</p>
 
-        <!-- Wanted Listings -->
-        <div class="section-title mt-5"><i class="fas fa-bullhorn"></i> Your Wanted Items</div>
-        {% if wanted_items %}
-            <div class="row">
-                {% for wanted in wanted_items %}
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="card card-listing">
-                            <div class="card-body">
-                                <h5>{{ wanted.name }} <span class="badge bg-warning text-dark">{{ wanted.status }}</span></h5>
-                                <p><strong>Description:</strong> {{ wanted.description }}</p>
-                                <p><strong>Contact:</strong> {{ wanted.contact }}</p>
-                                <a href="{{ url_for('edit_wanted', wanted_id=wanted._id|string) }}" class="btn btn-warning btn-sm btn-action mt-2">
-                                    <i class="fas fa-pencil-alt"></i> Edit / Mark Fulfilled
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p class="no-data">You have no active wanted items.</p>
-        {% endif %}
+                <div class="d-flex flex-wrap">
+                    {% for img_url in product.images %}
+                    <a href="{{ img_url }}" target="_blank">
+                        <img src="{{ img_url }}" class="card-img-preview" />
+                    </a>
+                    {% endfor %}
+                </div>
 
-        <!-- Back to Dashboard Button -->
-        <div class="dashboard-btn text-center">
-            <a href="{{ url_for('protected_area') }}"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+                <div class="card-buttons">
+                    <a href="{{ url_for('edit_listing', product_id=product._id) }}" class="btn btn-sm btn-primary">Edit</a>
+                    <a href="{{ url_for('mark_as_sold', product_id=product._id) }}" class="btn btn-sm btn-success">Mark as Sold</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Wanted Items -->
+        <div class="section-title mt-5"><i class="bi bi-megaphone-fill"></i> Your Wanted Items</div>
+        <div class="listing-section">
+            {% for item in wanted_items %}
+            <div class="wanted-card">
+                <span class="status-badge approved">{{ item.status }}</span>
+                <p><strong>Title:</strong> {{ item.name }}</p>
+                <p><strong>Description:</strong> {{ item.description }}</p>
+                <p><strong>Contact:</strong> {{ item.contact }}</p>
+
+                <div class="card-buttons">
+                    <a href="{{ url_for('edit_wanted_item', wanted_id=item._id) }}" class="btn btn-sm btn-warning">Edit / Mark Fulfilled</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mt-4">
+            <a href="{{ url_for('protected_area') }}" class="dashboard-btn">&larr; Back to Dashboard</a>
         </div>
     </div>
+
+    <!-- Bootstrap Icons (Optional) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </body>
 </html>
