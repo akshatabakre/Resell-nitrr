@@ -129,6 +129,70 @@
         .image-gallery img:hover {
             transform: scale(1.05);
         }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 991px) {
+            .card-body h5 {
+                font-size: 1.1rem;
+            }
+
+            .card-body p {
+                font-size: 0.95rem;
+            }
+
+            .dashboard-btn a {
+                font-size: 0.9rem;
+                padding: 10px 20px;
+            }
+
+            .image-gallery img {
+                width: 100px;
+                height: 80px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .section-title {
+                font-size: 1.25rem;
+            }
+
+            .image-gallery {
+                justify-content: center;
+            }
+
+            .image-gallery img {
+                width: 90px;
+                height: 70px;
+            }
+        }
+
+        @media (max-width: 575px) {
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .section-title {
+                font-size: 1.1rem;
+            }
+
+            .card-body h5 {
+                font-size: 1rem;
+            }
+
+            .card-body p {
+                font-size: 0.9rem;
+            }
+
+            .dashboard-btn a {
+                font-size: 0.85rem;
+                padding: 8px 16px;
+            }
+
+            .image-gallery img {
+                width: 80px;
+                height: 60px;
+            }
+        }
     </style>
 </head>
 <body>
