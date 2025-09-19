@@ -108,6 +108,10 @@ def callback():
 def logout():
     session.clear()
     return redirect("/")
+@app.route('/google6d6e61f3e6df070.html')
+def google_verification():
+    """Serves the Google verification file."""
+    return send_from_directory('.', 'google6d6e61f3e6df070.html')
 
 @app.route("/protected_area")
 @login_is_required
