@@ -46,7 +46,7 @@ flow = Flow.from_client_secrets_file(
         "https://www.googleapis.com/auth/userinfo.email",
         "openid"
     ],
-    redirect_uri="https://resell-nitrr-67.onrender.com//callback"
+    redirect_uri="https://resell-nitrr-2.onrender.com/callback"
 )
 
 def login_is_required(function):
