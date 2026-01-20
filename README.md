@@ -4,7 +4,7 @@ A peer-to-peer product reselling web platform for college students, enabling eas
 
 ## 🔗 Live Demo
 
-🌐 [resell-nitrr-67.onrender.com](https://resell-nitrr-67.onrender.com/) *(Deployment: Render)*
+🌐 [resellnitrr.me](https://www.resellnitrr.me/) *(Deployment: Render)*
 
 > ⚠️ *Note: If you open the site in Chrome, you may receive a warning from Google Safe Browsing. A re-verification and security update may be in progress.*
 
